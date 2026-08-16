@@ -1,0 +1,14 @@
+node_modules/
+android/.gradle/
+android/build/
+android/app/build/
+*.keystore
+*.jks
+local.properties
+
+peekabu411.github.io/
+turntable-spotify-callback/
+
+certificates/
+npm-install.err.log
+npm-install.out.log

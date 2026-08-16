@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Turntable</string>
+    <string name="title_activity_main">Turntable</string>
+    <string name="package_name">com.luigimendoza.turntable</string>
+    <string name="custom_url_scheme">com.luigimendoza.turntable</string>
+</resources>
