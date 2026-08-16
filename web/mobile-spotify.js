@@ -77,6 +77,22 @@
     return body;
   }
 
+  const browserPlugin = () => window.Capacitor?.Plugins?.Browser;
+
+  async function openAuthorizationBrowser(url) {
+    const spotifyAuth = window.Capacitor?.Plugins?.SpotifyAuth;
+    if (spotifyAuth?.open) {
+      await spotifyAuth.open({ url });
+      return;
+    }
+    const browser = browserPlugin();
+    if (browser?.open) {
+      await browser.open({ url });
+      return;
+    }
+    window.location.assign(url);
+  }
+
   async function beginAuthorization(clientId) {
     if (!/^[A-Za-z0-9]{20,64}$/.test(clientId)) throw new Error("Enter the Client ID from your Spotify Developer Dashboard.");
     const verifier = random(96);
@@ -89,7 +105,7 @@
       code_challenge_method: "S256", code_challenge: await sha256(verifier),
       scope: "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative"
     });
-    window.location.assign(ACCOUNT_URL + "/authorize?" + query);
+    await openAuthorizationBrowser(ACCOUNT_URL + "/authorize?" + query);
   }
 
   async function finishAuthorization(url) {
@@ -180,10 +196,10 @@
     return nativeFetch(input, init);
   };
   const completeRedirect = (url) => {
-    finishAuthorization(String(url)).then(() => location.reload()).catch((error) => {
+    Promise.resolve(browserPlugin()?.close?.()).catch(() => {}).finally(() => finishAuthorization(String(url)).then(() => location.reload()).catch((error) => {
       localStorage.removeItem(SESSION_KEY);
       location.replace("index.html?spotify_error=" + encodeURIComponent(error.message));
-    });
+    }));
   };
   window.Capacitor?.Plugins?.App?.addListener?.("appUrlOpen", ({ url }) => {
     if (String(url).startsWith(REDIRECT_URI)) completeRedirect(url);
