@@ -10,11 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Turntable">
     <link rel="manifest" href="/manifest.json">
-    <title>Turntable — LAN Music Remote</title>
+    <title>Turntable — Spotify Remote</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/settings-help.css">
     <link rel="stylesheet" href="/settings-help-previews.css">
     <link rel="stylesheet" href="/screen-fit.css">
+    <link rel="stylesheet" href="/preset-controls.css">
+    <link rel="stylesheet" href="/desktop-layout.css">
   </head>
   <body>
     <main class="shell">
@@ -34,7 +36,9 @@
       <section id="remote" class="device topbar-hidden" data-current-view="player" hidden>
         <div class="hardware-brand" aria-label="Spotify remote"><span class="spotify-mark">)))</span><b>spotify</b></div>
         <nav class="preset-bar" aria-label="Quick views">
-          <button class="back-button" id="back" aria-label="Back">&#8249;</button>
+          <div class="preset-selector-shell top-preset-control" aria-label="Active visual preset">
+          <select id="top-preset-select" class="preset-selector" aria-label="Select visual preset"></select>
+        </div>
           <button class="preset active" data-view="player"><span>Now playing</span></button>
           <button class="preset" data-view="playlists"><span>Playlists</span></button>
           <button class="preset" data-view="devices"><span>Devices</span></button>
@@ -88,7 +92,7 @@
                 <button id="previous" aria-label="Previous track">&#9664;&#9664;</button>
                 <button id="play" class="play-button" aria-label="Play">&#9654;</button>
                 <button id="next" aria-label="Next track">&#9654;&#9654;</button>
-                <button id="repeat" class="transport-small" aria-label="Repeat">&#8635;</button>
+                <button id="repeat" class="transport-small" aria-label="Repeat off" data-repeat-state="off"><span class="repeat-icon" aria-hidden="true">&#8635;</span><b class="repeat-one" aria-hidden="true">1</b></button>
               </div>
             </div>
           </section>
@@ -117,7 +121,7 @@
           </section>
 
           <section class="view controls-view" data-panel="settings">
-            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version 0.8.36"><small>REMOTE VERSION</small><b>ver(0.8.36)</b></button></div>
+            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><div class="settings-preset-tools" aria-label="Preset controls"><div class="preset-selector-shell"><select id="settings-preset-select" class="preset-selector" aria-label="Select visual preset"></select></div><button id="preset-save" type="button" disabled>Saved</button><button id="preset-manage" type="button" aria-label="Create or rename presets">&#8943;</button></div><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version 0.9.05"><small>REMOTE VERSION</small><b>ver(0.9.05)</b></button></div>
             <div class="settings-columns">
               <div class="settings-controls">
                 <section class="theme-picker" aria-labelledby="theme-title">
@@ -145,11 +149,20 @@
                         <button data-display-choice="lyrics"><b>Lyrics</b><span>Synced words</span></button>
                       </div>
                     </div>
-                    <div class="appearance-setting">
+                    <div class="appearance-setting player-background-setting">
                       <span>BACKGROUND</span>
-                      <div class="theme-options">
-                        <button data-player-background-choice="artwork"><b>Artwork</b><span>Album fade</span></button>
-                        <button data-player-background-choice="solid"><b>Solid</b><span>Deep album color</span></button>
+                      <div class="background-setting-body">
+                        <div class="theme-options player-background-options">
+                          <button data-player-background-choice="artwork"><b>Artwork</b><span>Album fade</span></button>
+                          <button data-player-background-choice="solid"><b>Solid</b><span>Full color</span></button>
+                        </div>
+                        <div class="background-color-controls">
+                          <div class="background-color-mode" role="group" aria-label="Background color source">
+                            <button data-background-color-mode="auto" type="button">Auto</button>
+                            <button data-background-color-mode="manual" type="button">Manual</button>
+                          </div>
+                          <label class="manual-background-color" for="background-color-picker"><input id="background-color-picker" type="color" value="#34261f" aria-label="Manual background color"><span>Color</span></label>
+                        </div>
                       </div>
                     </div>
                   </section>
@@ -173,7 +186,7 @@
                     <div class="appearance-setting control-bar-background-setting">
                       <span>CONTROL BAR BG</span>
                       <div class="theme-options control-bar-background-options">
-                        <button data-control-bar-background-choice="opaque"><b>Opaque</b><span>Solid dark bar</span></button>
+                        <button data-control-bar-background-choice="opaque"><b>Solid</b><span>Auto/manual color</span></button>
                         <button data-control-bar-background-choice="translucent"><b>Translucent</b><span>Frosted background</span></button>
                         <button data-control-bar-background-choice="transparent"><b>Transparent</b><span>No background</span></button>
                       </div>
@@ -253,7 +266,7 @@
         <aside id="queue-drawer" class="queue-drawer" aria-label="Playback queue" aria-hidden="true">
           <header><div><small>COMING UP</small><h2>Queue</h2></div><button id="queue-close" aria-label="Close playback queue">&#10005;</button></header>
           <div id="queue-list" class="queue-list"><p class="empty">Your Spotify queue will appear here.</p></div>
-          <p class="queue-api-note">Play Next waits for the current song to finish, then advances to your selection. Spotify does not allow queue removal or reordering here.</p>
+          <p class="queue-api-note">Play Next advances to your selection after the current song ends or is skipped forward. Spotify does not allow queue removal or reordering here.</p>
         </aside>
 
         <button id="side-control-reveal" class="side-control-reveal" aria-label="Show volume control">&lt;</button>
@@ -276,7 +289,27 @@
           <button id="fullscreen-dismiss" class="fullscreen-dismiss" type="button">Not now</button>
         </div>
       </div>
-      <div id="settings-help-modal" class="settings-help-modal" role="dialog" aria-modal="true" aria-labelledby="settings-help-title" hidden>
+        <div id="preset-modal" class="preset-modal" role="dialog" aria-modal="true" aria-labelledby="preset-modal-title" hidden>
+    <button id="preset-modal-backdrop" class="preset-modal-backdrop" type="button" aria-label="Close preset dialog"></button>
+    <section id="preset-modal-card" class="preset-modal-card" tabindex="-1">
+      <header class="preset-modal-header">
+        <div><p>VISUAL PRESETS</p><h2 id="preset-modal-title">Manage presets</h2></div>
+        <button id="preset-modal-close" class="preset-modal-close" type="button" aria-label="Close preset dialog">&#215;</button>
+      </header>
+      <p id="preset-modal-message" class="preset-modal-message"></p>
+      <label class="preset-name-field" for="preset-name">Preset name<input id="preset-name" type="text" maxlength="24" autocomplete="off" spellcheck="false"></label>
+      <div class="preset-modal-actions">
+        <button id="preset-save-switch" class="primary" type="button">Save &amp; switch</button>
+        <button id="preset-discard-switch" type="button">Discard &amp; switch</button>
+        <button id="preset-create" class="primary" type="button">Create new</button>
+        <button id="preset-rename" type="button">Rename</button>
+        <button id="preset-delete" class="danger" type="button">Delete</button>
+        <button id="preset-cancel" type="button">Cancel</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="settings-help-modal" class="settings-help-modal" role="dialog" aria-modal="true" aria-labelledby="settings-help-title" hidden>
         <button id="settings-help-backdrop" class="settings-help-backdrop" type="button" aria-label="Close setting explanation"></button>
         <section id="settings-help-card" class="settings-help-card" tabindex="-1">
           <header><div><small>SETTING GUIDE</small><h2 id="settings-help-title">Setting information</h2></div><button id="settings-help-close" type="button" aria-label="Close setting explanation">&#10005;</button></header>
@@ -295,16 +328,16 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(0.9.05)</b><span>Doubled desktop artwork, lowered its progress line further, and fixed clipped title descenders.</span></li>
+            <li><b>ver(0.9.04)</b><span>Refined desktop sizing with centered Settings, one-shot Repeat One, and 50% larger artwork.</span></li>
+            <li><b>ver(0.9.03)</b><span>Added isolated desktop fullscreen layout, integrated volume controls, bottom transport, and hideable top tabs.</span></li>
+            <li><b>ver(0.9.02)</b><span>Fixed Play Next after manual skips, raised the Divider progress line, and extended the top-tab handle hit area.</span></li>
+            <li><b>ver(0.9.01)</b><span>Added Auto/Manual background colors, matched Solid control-bar colors, and fixed Queue to one column.</span></li>
+            <li><b>ver(0.9.00)</b><span>Refined the non-player top-bar handle with a higher visual position and downward-only touch area.</span></li>
+            <li><b>ver(0.8.39)</b><span>Matched Dial bottom-control positioning to the Slider layout and enlarged non-player top-bar targets.</span></li>
+            <li><b>ver(0.8.38)</b><span>Added saveable visual presets and locked Default controls to Divider positioning.</span></li>
+            <li><b>ver(0.8.37)</b><span>Added automatic backend restarting and made every Settings group uniform.</span></li>
             <li><b>ver(0.8.36)</b><span>Expanded Devices cards, corrected Settings spacing, and improved cache-safe app refresh.</span></li>
-            <li><b>ver(0.8.35)</b><span>Fixed iPhone Safari update-log text inflation and entry overlap.</span></li>
-            <li><b>ver(0.8.34)</b><span>Fixed Screen Fit profile switching and refined Settings information previews and controls.</span></li>
-            <li><b>ver(0.8.33)</b><span>Added status recommendations and a color legend, and narrowed lyric timing around the -0.7s default.</span></li>
-            <li><b>ver(0.8.32)</b><span>Added connection health, request diagnostics, responsive profiles, UI text scaling, and safer update support.</span></li>
-            <li><b>ver(0.8.31)</b><span>Fixed Queue Play Next skip counts and live lineup refresh.</span></li>
-            <li><b>ver(0.8.30)</b><span>Added haptic feedback to every enabled button press.</span></li>
-            <li><b>ver(0.8.29)</b><span>Added Light, Medium, and Heavy volume-control weight.</span></li>
-            <li><b>ver(0.8.28)</b><span>Fixed Dashboard phone-address overlap with Show PIN.</span></li>
-            <li><b>ver(0.8.27)</b><span>Changed the update log to top-to-bottom column flow.</span></li>
 
 
 
@@ -331,5 +364,6 @@
     <script src="/mobile-spotify.js"></script>
     <script src="/app.js"></script>
     <script src="/settings-help.js"></script>
+  <script src="/preset-controls.js"></script>
   </body>
 </html>

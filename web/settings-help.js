@@ -21,7 +21,7 @@
     background: {
       title: "Player background",
       summary: "Controls the background behind Now Playing.",
-      details: ["Artwork crossfades enlarged album artwork behind the player.", "Solid uses a deep color sampled from the album."],
+      details: ["Artwork crossfades enlarged album artwork behind the player; Square now uses the same neutral dark shade as Vinyl.", "Solid fills the player with color.", "Auto samples color locally from the album cover. Manual reveals a compact picker and applies that color to Artwork tint, Solid backgrounds, and solid lyric surfaces."],
       visuals: [["Artwork", "artwork-bg"], ["Solid", "solid-bg"]]
     },
     playbackBar: {

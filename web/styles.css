@@ -37,14 +37,14 @@
 .dial{background:radial-gradient(circle at 38% 34%,#242424 0,#171717 44%,#0a0a0a 78%);box-shadow:0 12px 30px #000,inset 0 0 0 2px #303030,inset 0 0 0 9px #0b0b0b}
 .dial-center{background:#151515;border:1px solid #2d2d2d;font-size:0;box-shadow:inset 0 1px 1px #ffffff0d}
 #dial .dial-center{font-size:0}
-.player-background{position:absolute;z-index:0;inset:0;overflow:hidden;pointer-events:none;background:#080808}.player-background-layer{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;transform:scale(1.035);transition:opacity 1s ease,transform 1.2s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform}.player-background-layer.active{opacity:1;transform:scale(1)}.player-background-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(93,45,17,.52),rgba(8,8,8,.92) 73%),linear-gradient(0deg,#050505aa 0,transparent 36%),linear-gradient(90deg,transparent 68%,#050505 96%)}.player-view>.art-stage,.player-view>.player-info{z-index:2}
-.device[data-player-background="solid"] .player-background{background:var(--album-color,#34261f);transition:background-color .7s ease}
+.player-background{position:absolute;z-index:0;inset:0;overflow:hidden;pointer-events:none;background:#080808}.player-background-layer{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;transform:scale(1.035);transition:opacity 1s ease,transform 1.2s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform}.player-background-layer.active{opacity:1;transform:scale(1)}.player-background-shade{position:absolute;inset:0;background:linear-gradient(90deg,#160f0bb8,#080808e6 74%),linear-gradient(0deg,#030303cc,transparent 48%)}.player-view>.art-stage,.player-view>.player-info{z-index:2}
+.device[data-player-background="solid"] .player-background{background:var(--effective-background-color,var(--album-color,#34261f));transition:background-color .7s ease}
 .device[data-player-background="solid"] .player-background-layer{opacity:0!important;transform:scale(1.02)}
 .device[data-player-background="solid"] .player-background-shade{background:linear-gradient(90deg,#00000022,#0505054f 78%),linear-gradient(0deg,#05050552,transparent 48%)}
 .timeline input[type="range"]{--seek-progress:0%;-webkit-appearance:none;appearance:none;height:28px;margin:0;background:transparent;cursor:pointer;touch-action:none}.timeline input[type="range"]::-webkit-slider-runnable-track{height:2px;border:0;border-radius:0;background:linear-gradient(to right,#fff 0 var(--seek-progress),#ffffff42 var(--seek-progress) 100%)}.timeline input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border:0;margin-top:-13px;background:transparent}.timeline input[type="range"]::-moz-range-track{height:2px;border:0;border-radius:0;background:#ffffff42}.timeline input[type="range"]::-moz-range-progress{height:2px;border:0;border-radius:0;background:#fff}.timeline input[type="range"]::-moz-range-thumb{width:28px;height:28px;border:0;background:transparent}.transport .play-button{background:transparent;color:#fff;box-shadow:none}
 .timeline input[type="range"],.timeline input[type="range"]:focus,.timeline input[type="range"]:active{outline:0!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent}.timeline input[type="range"]::-webkit-slider-thumb{border-radius:0;box-shadow:none!important;filter:none}.timeline input[type="range"]::-moz-range-thumb{border-radius:0;box-shadow:none!important;filter:none}
 .device[data-playback-bar="default"] .timeline>div{margin-top:-7px}
-.lyrics-panel{display:none;height:190px;box-sizing:border-box;overflow:hidden;border-radius:16px;padding:13px 17px;color:#fff;transition:background-color .7s ease,box-shadow .7s ease}.device[data-display="lyrics"] #context,.device[data-display="lyrics"] #title,.device[data-display="lyrics"] #artist{display:none}.device[data-display="lyrics"] .lyrics-panel{display:block}.device[data-display="lyrics"][data-lyrics-background="solid"] .lyrics-panel{background:var(--album-color,#34261f);box-shadow:0 14px 32px #0005,inset 0 1px #ffffff14}.device[data-display="lyrics"][data-lyrics-background="transparent"] .lyrics-panel{padding-left:0;padding-right:0;background:transparent}.lyrics-panel>p{height:100%;display:grid;place-items:center;margin:0;color:#d8d8d8;font-size:16px;text-align:center}.lyrics-panel>p[hidden]{display:none}.lyrics-lines{height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;touch-action:pan-y;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}.lyrics-lines.synced{padding-top:118px;padding-bottom:64px}.lyrics-lines::-webkit-scrollbar{display:none}.lyrics-lines p{margin:0;padding:7px 0;color:#ffffff60;font-size:18px;font-weight:700;line-height:1.18;transform-origin:left center;transition:color .25s ease,transform .25s ease}.lyrics-lines p.active{color:#fff;transform:scale(1.04)}.lyrics-lines p.plain{color:#e6e6e6;font-weight:600}
+.lyrics-panel{display:none;height:190px;box-sizing:border-box;overflow:hidden;border-radius:16px;padding:13px 17px;color:#fff;transition:background-color .7s ease,box-shadow .7s ease}.device[data-display="lyrics"] #context,.device[data-display="lyrics"] #title,.device[data-display="lyrics"] #artist{display:none}.device[data-display="lyrics"] .lyrics-panel{display:block}.device[data-display="lyrics"][data-lyrics-background="solid"] .lyrics-panel{background:var(--effective-background-color,var(--album-color,#34261f));box-shadow:0 14px 32px #0005,inset 0 1px #ffffff14}.device[data-display="lyrics"][data-lyrics-background="transparent"] .lyrics-panel{padding-left:0;padding-right:0;background:transparent}.lyrics-panel>p{height:100%;display:grid;place-items:center;margin:0;color:#d8d8d8;font-size:16px;text-align:center}.lyrics-panel>p[hidden]{display:none}.lyrics-lines{height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;touch-action:pan-y;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}.lyrics-lines.synced{padding-top:118px;padding-bottom:64px}.lyrics-lines::-webkit-scrollbar{display:none}.lyrics-lines p{margin:0;padding:7px 0;color:#ffffff60;font-size:18px;font-weight:700;line-height:1.18;transform-origin:left center;transition:color .25s ease,transform .25s ease}.lyrics-lines p.active{color:#fff;transform:scale(1.04)}.lyrics-lines p.plain{color:#e6e6e6;font-weight:600}
 
 @media (orientation:portrait) and (max-width:600px){.device:not([hidden])~.rotate-notice{display:flex;position:fixed;z-index:20;inset:0;background:#050505;align-items:center;justify-content:center;flex-direction:column;gap:7px;text-align:center}.rotate-notice span{color:#888}}
 
@@ -331,7 +331,7 @@
 .playback-bar-setting{grid-column:1/-1}
 .volume-weight-setting,.control-bar-background-setting{grid-column:1/-1}.volume-weight-options,.control-bar-background-options{grid-template-columns:repeat(3,minmax(0,1fr))}
 .device .transport{transition:background-color .28s ease,-webkit-backdrop-filter .28s ease,backdrop-filter .28s ease}
-.device[data-control-bar-background="opaque"] .transport{background-color:#080808;-webkit-backdrop-filter:none;backdrop-filter:none}
+.device[data-control-bar-background="opaque"] .transport{background-color:var(--effective-background-color,var(--album-color,#34261f));-webkit-backdrop-filter:none;backdrop-filter:none}
 .device[data-control-bar-background="translucent"] .transport{background-color:#080808ad;-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15)}
 .device[data-control-bar-background="transparent"] .transport{background-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
@@ -355,7 +355,7 @@
 }
 /* Lift the Divider seek line clear of transport buttons. */
 @media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
-  .device[data-playback-bar="divider"] .timeline{bottom:65px;height:24px}
+  .device[data-playback-bar="divider"] .timeline{bottom:69px;height:24px}
   .device[data-playback-bar="divider"] .timeline input[type="range"]{bottom:0;height:30px;transform:translateY(8px)}
   .device[data-playback-bar="divider"] .transport{padding-top:7px}
 }
@@ -430,7 +430,7 @@
   .device[data-current-view="player"] .transport{isolation:isolate;background-color:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
   .device[data-current-view="player"] .transport::before{content:"";position:absolute;z-index:0;pointer-events:none;left:0;right:0;top:0;bottom:calc(-8px - env(safe-area-inset-bottom));background:transparent;transition:background-color .28s ease,-webkit-backdrop-filter .28s ease,backdrop-filter .28s ease}
   .device[data-current-view="player"] .transport button{z-index:1}
-  .device[data-control-bar-background="opaque"][data-current-view="player"] .transport::before{background:#080808}
+  .device[data-control-bar-background="opaque"][data-current-view="player"] .transport::before{background:var(--effective-background-color,var(--album-color,#34261f))}
   .device[data-control-bar-background="translucent"][data-current-view="player"] .transport::before{background:#080808ad;-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15)}
 }
 /* Version-card update log popup. */
@@ -465,3 +465,32 @@
 .update-log-list li>b{display:block!important;width:auto!important;min-width:0!important;margin:0!important;font-size:7px!important;line-height:1.35!important;letter-spacing:.01em!important;white-space:nowrap!important}
 .update-log-list li>span{display:block!important;min-width:0!important;margin:0!important;font-size:8px!important;line-height:1.42!important;overflow-wrap:break-word!important;word-break:normal!important}
 @media(orientation:landscape) and (max-height:500px){.update-log-list li{grid-template-columns:56px minmax(0,1fr)!important;column-gap:9px!important;padding:8px 6px!important}.update-log-list li>b{font-size:7px!important}.update-log-list li>span{font-size:8px!important}}
+/* Lock Default and Divider transport controls to the Divider geometry. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
+  .device[data-current-view="player"] .transport{height:53px;min-height:53px;bottom:calc(2px + env(safe-area-inset-bottom));padding-top:7px;padding-bottom:0;border-top:0}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport{box-shadow:inset 0 1px #ffffff14}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport{box-shadow:none}
+}
+
+/* Larger top-bar handle target outside Now Playing. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
+  .device:not([data-current-view="player"]) .bar-handle{top:40px;width:74px;height:52px}
+  .device:not([data-current-view="player"]).topbar-hidden .bar-handle{top:0;width:74px;height:56px}
+  .device:not([data-current-view="player"]) .bar-handle span{transform:translateY(-15px)}
+  .device:not([data-current-view="player"]):not(.topbar-hidden) .bar-handle span{transform:translateY(-5px)}
+  .device:not([data-current-view="player"]) .bar-handle::before{content:"";position:absolute;left:0;right:0;top:-48px;bottom:0;background:transparent}
+}
+
+/* Keep Dial transport buttons on the Slider transport coordinates. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
+  .device[data-current-view="player"][data-control="dial"] .transport,.device[data-current-view="player"][data-control="bar"] .transport{left:0;right:0;padding-left:calc(10px + env(safe-area-inset-left));padding-right:calc(62px + env(safe-area-inset-right))}
+}
+
+/* Minimal automatic and manual background color controls. */
+.device[data-background-color-mode="auto"]{--effective-background-color:var(--album-color,#34261f)}
+.device[data-background-color-mode="manual"]{--effective-background-color:var(--manual-background-color,#34261f)}
+.device[data-player-background="artwork"][data-background-color-mode="manual"] .player-background-shade{background:linear-gradient(90deg,var(--manual-background-overlay,rgba(52,38,31,.62)),rgba(8,8,8,.9) 74%),linear-gradient(0deg,#030303cc,transparent 48%)}
+.background-setting-body{display:grid;gap:5px;min-width:0}.player-background-options{width:100%}.background-color-controls{display:flex;align-items:center;gap:5px;min-height:22px}.background-color-mode{display:flex;align-items:center;gap:3px}.background-color-mode button{height:22px;min-width:42px;padding:0 8px;border:1px solid #ffffff18;border-radius:999px;background:#ffffff08;color:#8f8f8f;font-size:8px;font-weight:800;letter-spacing:.03em}.background-color-mode button.active{border-color:#1ed76075;background:#14351e;color:#fff}.manual-background-color{height:22px;display:inline-flex;align-items:center;gap:5px;padding:2px 7px 2px 3px;border:1px solid #ffffff18;border-radius:999px;color:#aaa;font-size:8px;font-weight:700}.manual-background-color input{width:18px;height:16px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;overflow:hidden}.manual-background-color input::-webkit-color-swatch-wrapper{padding:0}.manual-background-color input::-webkit-color-swatch{border:0;border-radius:50%}.manual-background-color input::-moz-color-swatch{border:0;border-radius:50%}.device[data-background-color-mode="auto"] .manual-background-color{display:none}
+@media(orientation:landscape) and (max-height:500px) and (max-width:1200px){.background-setting-body{gap:4px}.background-color-controls{min-height:20px}.background-color-mode button{height:20px;min-width:38px;padding:0 7px;font-size:7px}.manual-background-color{height:20px}.manual-background-color input{width:16px;height:14px}}
+/* Repeat All and Repeat One transport states. */
+#repeat{position:relative;display:grid;place-items:center}.repeat-icon{grid-area:1/1;line-height:1}.repeat-one{position:absolute;left:50%;top:50%;min-width:9px;height:9px;display:grid;place-items:center;border-radius:50%;background:#050505;color:currentColor;font-size:7px;line-height:1;transform:translate(-3px,-1px);opacity:0;transition:opacity .14s ease}#repeat[data-repeat-state="track"] .repeat-one{opacity:1}

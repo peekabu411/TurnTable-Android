@@ -69,3 +69,20 @@
 @media(max-width:620px),(orientation:portrait){
   .device .devices-view .devices-layout{grid-template-columns:1fr!important;gap:10px!important}
 }
+/* Display follows the same open divider layout as every other Settings group. */
+.controls-view .settings-group-display{margin:0!important;padding:6px 0 8px!important;border:0!important;border-top:1px solid #ffffff12!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+@media(orientation:landscape) and (max-height:500px){.controls-view .settings-group-display{padding:6px 0 8px!important}}
+/* Uniform Settings geometry while preserving the existing section order. */
+.controls-view .settings-group,.controls-view .settings-group-display{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 10px!important;padding:6px 0 8px!important;border:0!important;border-top:1px solid #ffffff12!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.controls-view .settings-group-display{width:auto;margin:0 10px!important}
+.controls-view .settings-group>.settings-group-heading,.controls-view .settings-group-display>.settings-group-heading{grid-column:1/-1;min-height:17px;margin:0 0 2px!important;padding:0!important}
+.controls-view .settings-group>.appearance-setting,.controls-view .settings-group-display>.appearance-setting{padding:5px 0!important;margin:0!important}
+.device[data-layout-resolved="compact"] .settings-group,.device[data-layout-resolved="compact"] .settings-group-display{padding:4px 0 6px!important;gap:3px 8px!important}
+.device[data-layout-resolved="standard"] .settings-group,.device[data-layout-resolved="standard"] .settings-group-display{padding:6px 0 8px!important;gap:5px 10px!important}
+.device[data-layout-resolved="wide"] .settings-group,.device[data-layout-resolved="wide"] .settings-group-display{padding:7px 0 9px!important;gap:6px 11px!important}
+@media(orientation:landscape) and (max-height:500px){.controls-view .settings-group-display{margin-left:9px!important;margin-right:9px!important}.controls-view .settings-group,.controls-view .settings-group-display{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(orientation:portrait) and (max-width:760px){.controls-view .settings-group,.controls-view .settings-group-display{grid-template-columns:1fr}.controls-view .settings-group-display{margin-left:10px!important;margin-right:10px!important}}
+/* All Settings section labels, including Display, share one heading weight. */
+.controls-view .settings-group-heading>small{color:var(--green)!important;font-weight:800!important;letter-spacing:.14em!important;text-transform:uppercase}
+/* Queue is always a single readable column. */
+.device .queue-drawer .queue-list{grid-template-columns:1fr!important}

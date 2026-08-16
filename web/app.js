@@ -14,6 +14,8 @@ let commandPending = false;
 let optimisticPlaybackPlaying = null;
 let optimisticPlaybackUntil = 0;
 const optimisticSettings = new Map();
+let repeatOneArmedUri = null;
+let repeatOneAutoOffPending = false;
 let connectionState = { kind: "waiting", detail: "Waiting for the first playback update.", updatedAt: 0, cacheAge: null };
 let diagnosticsRefreshTimer = null;
 let artSwipe = null;
@@ -49,6 +51,8 @@ let controlStyle = localStorage.getItem("turntable-control-style") || (legacyThe
 let displayStyle = localStorage.getItem("turntable-display-style") || "info";
 let lyricsBackground = localStorage.getItem("turntable-lyrics-background") || "transparent";
 let playerBackgroundStyle = localStorage.getItem("turntable-player-background") || "artwork";
+let backgroundColorMode = localStorage.getItem("turntable-background-color-mode") === "manual" ? "manual" : "auto";
+let manualBackgroundColor = /^#[0-9a-f]{6}$/i.test(localStorage.getItem("turntable-manual-background-color") || "") ? localStorage.getItem("turntable-manual-background-color") : "#34261f";
 let playbackBarStyle = localStorage.getItem("turntable-playback-bar-style") === "divider" ? "divider" : "default";
 let guideText = localStorage.getItem("turntable-guide-text") === "hidden" ? "hidden" : "shown";
 let controlBarBackground = ["opaque", "translucent", "transparent"].includes(localStorage.getItem("turntable-control-bar-background")) ? localStorage.getItem("turntable-control-bar-background") : "transparent";
@@ -119,8 +123,8 @@ async function api(path, options = {}) {
       headers: { "Content-Type": "application/json", "x-remote-session": session, ...(options.headers || {}) }
     });
   } catch (error) {
-    setConnectionState("offline", "The PC server is unreachable. Showing the last saved playback.");
-    throw Object.assign(new Error("The PC remote is offline or unavailable on this network."), { status: 503, cause: error });
+    setConnectionState("offline", "Spotify is unreachable. Showing the last saved playback.");
+    throw Object.assign(new Error("Spotify is unavailable. Check your internet connection and authorization."), { status: 503, cause: error });
   }  if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     if (response.status === 401) {
@@ -130,7 +134,7 @@ async function api(path, options = {}) {
       refreshTimer = null;
       remote.hidden = true;
       pairing.hidden = false;
-      $("pair-error").textContent = "The server restarted or this pairing expired. Enter your PIN again.";
+      $("pair-error").textContent = "Your Spotify authorization expired. Connect Spotify again.";
     }
     const retryAfter = Math.max(0, Number(body.retry_after || response.headers.get("retry-after")) || 0);
     if (response.status === 429 && retryAfter) {
@@ -646,7 +650,7 @@ function connectionCopy(kind) {
     cached: ["Reconnecting", "Showing the last known playback while Spotify reconnects."],
     cooldown: ["Spotify cooldown", "Playback is cached until Spotify allows another request."],
     offline: ["PC unavailable", "The last saved playback remains visible while the LAN connection recovers."],
-    waiting: ["Waiting for Spotify", "Start a song in the desktop Spotify client to synchronize playback."]
+    waiting: ["Waiting for Spotify", "Start a song in Spotify to synchronize playback."]
   }[kind] || ["Checking connection", "Contacting the PC and Spotify..."];
 }
 function connectionAction(kind) {
@@ -865,7 +869,34 @@ function setUpdateLogOpen(open) {
     diagnosticsRefreshTimer = null;
     if (modal.contains(document.activeElement)) $("version-indicator").focus({ preventScroll: true });
   }
-}function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
+}
+function normalizedBackgroundColor(value) {
+  return /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value).toLowerCase() : "#34261f";
+}
+function backgroundOverlay(color) {
+  const value = normalizedBackgroundColor(color);
+  const red = parseInt(value.slice(1, 3), 16);
+  const green = parseInt(value.slice(3, 5), 16);
+  const blue = parseInt(value.slice(5, 7), 16);
+  return `rgba(${red},${green},${blue},.62)`;
+}
+function applyBackgroundColorMode(nextMode = backgroundColorMode, nextColor = manualBackgroundColor) {
+  backgroundColorMode = nextMode === "manual" ? "manual" : "auto";
+  manualBackgroundColor = normalizedBackgroundColor(nextColor);
+  remote.dataset.backgroundColorMode = backgroundColorMode;
+  remote.style.setProperty("--manual-background-color", manualBackgroundColor);
+  remote.style.setProperty("--manual-background-overlay", backgroundOverlay(manualBackgroundColor));
+  localStorage.setItem("turntable-background-color-mode", backgroundColorMode);
+  localStorage.setItem("turntable-manual-background-color", manualBackgroundColor);
+  document.querySelectorAll("[data-background-color-mode]").forEach((button) => {
+    const active = button.dataset.backgroundColorMode === backgroundColorMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  const picker = $("background-color-picker");
+  if (picker) picker.value = manualBackgroundColor;
+}
+function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
   const previousAlbum = albumStyle;
   const previousLyricStyle = lyricStyle;
   albumStyle = nextAlbum === "vinyl" ? "vinyl" : "square";
@@ -1317,6 +1348,23 @@ function paintPlaybackButton(playing) {
   $("play").setAttribute("aria-label", playing ? "Pause" : "Play");
   $("dial").setAttribute("aria-label", (playing ? "Pause" : "Play") + "; swipe vertically for volume");
 }
+function paintRepeatButton(repeatState = "off") {
+  const state = ["context", "track"].includes(repeatState) ? repeatState : "off";
+  const button = $("repeat");
+  button.dataset.repeatState = state;
+  button.classList.toggle("active", state !== "off");
+  button.setAttribute("aria-label", state === "track" ? "Repeat one enabled for one replay" : state === "context" ? "Repeat all enabled" : "Repeat off");
+}
+async function completeRepeatOneCycle(uri) {
+  if (!uri || repeatOneAutoOffPending || repeatOneArmedUri !== uri) return;
+  repeatOneAutoOffPending = true;
+  repeatOneArmedUri = null;
+  setOptimisticSetting("repeat", "off", 5_000);
+  paintRepeatButton("off");
+  const applied = await setting({ repeat: "off" });
+  repeatOneAutoOffPending = false;
+  if (applied) setMessage("Repeat One completed. Repeat is now off.");
+}
 function optimisticPlaybackDisplay(serverPlaying) {
   if (optimisticPlaybackPlaying === null) return serverPlaying;
   if (serverPlaying === optimisticPlaybackPlaying || performance.now() >= optimisticPlaybackUntil) {
@@ -1329,8 +1377,8 @@ function optimisticPlaybackDisplay(serverPlaying) {
 
 function updateTrackCopy(track, context = playback?.context, updateContext = true) {
   $("title").textContent = track?.name || "Nothing playing";
-  $("artist").textContent = track ? artists(track) : "Open Spotify on your PC and start a song";
-  if (updateContext) $("context").textContent = context?.type ? "PLAYING FROM " + context.type.toUpperCase() : "PLAYING FROM YOUR PC";
+  $("artist").textContent = track ? artists(track) : "Open Spotify on a device and start a song";
+  if (updateContext) $("context").textContent = context?.type ? "PLAYING FROM " + context.type.toUpperCase() : "READY FOR SPOTIFY";
 }
 
 function previewQueuedTrack(track = state?.queue?.[0]) {
@@ -1387,11 +1435,13 @@ function render(data) {
   syncProgressClock(playback);
   setVinylPlaybackState(!!playback?.is_playing);
   if (queuedPlayNextTarget && !queuedPlayNextRunning && playbackBoundary) {
-    if (naturalPlaybackBoundary) void advanceToQueuedTarget(incomingUri);
+    const expectedForwardUri = state?.queue?.[0]?.uri || null;
+    const forwardQueueBoundary = !!(incomingUri && expectedForwardUri && incomingUri === expectedForwardUri);
+    if (naturalPlaybackBoundary || forwardQueueBoundary) void advanceToQueuedTarget(incomingUri);
     else {
       clearQueuedPlayNextTarget();
       renderQueue(state?.queue || []);
-      setMessage("Play Next cancelled because playback changed before the song ended.");
+      setMessage("Play Next cancelled because playback moved outside the saved queue.");
     }
   }
   if (queuedPlayNextTarget && !queuedPlayNextRunning && !playbackBoundary) scheduleQueuedPlayNextBoundaryCheck();
@@ -1400,13 +1450,17 @@ function render(data) {
   const displayedShuffle = optimisticSettingValue("shuffle", !!playback?.shuffle_state);
   $("shuffle").classList.toggle("active", displayedShuffle);
   const displayedRepeat = optimisticSettingValue("repeat", playback?.repeat_state || "off");
-  $("repeat").classList.toggle("active", displayedRepeat !== "off");  setButtonAvailability($("play"), playback?.is_playing ? disallowed("pausing") : disallowed("resuming"), "Spotify has disabled this action for the current item.");
+  paintRepeatButton(displayedRepeat);
+  if (displayedRepeat === "track" && incomingUri && !repeatOneAutoOffPending && repeatOneArmedUri !== incomingUri) repeatOneArmedUri = incomingUri;
+  if (displayedRepeat !== "track" && !repeatOneAutoOffPending) repeatOneArmedUri = null;
+  if (repeatedTrackBoundary && displayedRepeat === "track" && repeatOneArmedUri === incomingUri) void completeRepeatOneCycle(incomingUri);
+  setButtonAvailability($("play"), playback?.is_playing ? disallowed("pausing") : disallowed("resuming"), "Spotify has disabled this action for the current item.");
   setButtonAvailability($("previous"), disallowed("skipping_prev"), "Previous is unavailable for this item.");
   setButtonAvailability($("next"), disallowed("skipping_next"), "Next is unavailable for this item.");
   setButtonAvailability($("seek"), disallowed("seeking"), "Seeking is unavailable for this item.");
   setButtonAvailability($("shuffle"), disallowed("toggling_shuffle"), "Shuffle is unavailable for this context.");
 
-  setButtonAvailability($("repeat"), disallowed("toggling_repeat_context"), "Repeat is unavailable for this context.");
+  setButtonAvailability($("repeat"), displayedRepeat === "off" ? disallowed("toggling_repeat_context") : displayedRepeat === "track" ? disallowed("toggling_repeat_track") : disallowed("toggling_repeat_context") && disallowed("toggling_repeat_track"), "Repeat is unavailable for the current context.");
 
   setButtonAvailability($("volume"), playback?.device?.supports_volume === false, "This Spotify device controls its own volume.");
   $("dial").disabled = playback?.device?.supports_volume === false;
@@ -1452,7 +1506,7 @@ async function refresh(force = false) {
       setConnectionState("cached", data.connection?.last_error?.message || "Showing the last known playback while Spotify reconnects.", { updatedAt, cacheAge });
       setMessage("Spotify is reconnecting — showing the last known playback.");
     } else {
-      setConnectionState(data.playback ? "connected" : "waiting", data.playback ? "Playback is synchronized with the desktop Spotify client." : "Start a song in the desktop Spotify client to synchronize playback.", { updatedAt, cacheAge });
+      setConnectionState(data.playback ? "connected" : "waiting", data.playback ? "Playback is synchronized with Spotify." : "Start a song in Spotify to synchronize playback.", { updatedAt, cacheAge });
       setMessage();
     }
   } catch (error) {
@@ -1461,7 +1515,7 @@ async function refresh(force = false) {
       setConnectionState("cooldown", `Spotify requested a pause. Retrying in ${seconds} seconds.`);
       setMessage(`Spotify cooldown active — retrying in ${seconds} seconds.`);
     } else {
-      setConnectionState("offline", "The PC server or Spotify connection is unavailable. Showing the last saved playback.");
+      setConnectionState("offline", "Spotify is unavailable. Showing the last saved playback.");
       setMessage("Reconnecting — the last known playback remains available.");
     }
   } finally { refreshInFlight = false; }
@@ -1702,7 +1756,7 @@ $("pair").onclick = async () => {
   const originalLabel = pairButton.textContent;
   pairButton.disabled = true;
   pairButton.textContent = "Connecting...";
-  $("pair-error").textContent = "Checking the PC and loading saved playback...";
+  $("pair-error").textContent = "Opening Spotify authorization...";
   try {
     const response = await fetch("/api/pair", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin: $("pin").value }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.error);
@@ -1728,7 +1782,7 @@ $("pair").onclick = async () => {
   }
 };$("pin").addEventListener("keydown", (event) => { if (event.key === "Enter") $("pair").click(); });
 document.querySelectorAll("[data-view]").forEach((button) => button.onclick = () => { switchView(button.dataset.view); setTopBarHidden(true); });
-$("back").onclick = () => { switchView("player"); setTopBarHidden(true); };
+if ($("back")) $("back").onclick = () => { switchView("player"); setTopBarHidden(true); };
 $("refresh").onclick = async () => {
   const button = $("refresh");
   if (button.classList.contains("refreshing")) return;
@@ -1737,16 +1791,29 @@ $("refresh").onclick = async () => {
   button.setAttribute("aria-busy", "true");
   setMessage("Checking the PC server...");
   const stamp = Date.now();
+  const fetchFresh = async (url, attempts = 10) => {
+    let lastError = new Error("The PC server did not answer.");
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+        if (response.ok) return response;
+        lastError = new Error(`PC server returned ${response.status}.`);
+      } catch (error) { lastError = error; }
+      if (attempt < attempts - 1) {
+        setMessage("The server is applying an update. Reconnecting...");
+        await new Promise((resolve) => setTimeout(resolve, 600));
+      }
+    }
+    throw lastError;
+  };
   try {
-    const healthResponse = await fetch(`/api/health?app_refresh=${stamp}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-    if (!healthResponse.ok) throw new Error(`PC server returned ${healthResponse.status}.`);
+    const healthResponse = await fetchFresh(`/api/health?app_refresh=${stamp}`);
     const health = await healthResponse.json();
     const nextUrl = new URL(location.href);
     nextUrl.searchParams.set("app_refresh", String(stamp));
     nextUrl.hash = "";
     setMessage(`Loading Turntable ${health.version || "update"}...`);
-    const documentResponse = await fetch(nextUrl.toString(), { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-    if (!documentResponse.ok) throw new Error(`Updated app returned ${documentResponse.status}.`);
+    await fetchFresh(nextUrl.toString());
     setTimeout(() => location.replace(nextUrl.toString()), 100);
   } catch (error) {
     button.classList.remove("refreshing");
@@ -1791,7 +1858,7 @@ $("seek").onpointerup = commitSeek;
 $("seek").onpointercancel = () => { seekDragging = false; paintProgress(); };
 $("volume").oninput = () => updateVolume(Number($("volume").value)); $("volume").onchange = () => setting({ volume_percent: Number($("volume").value) }, false);
 $("shuffle").onclick = () => { const value = !optimisticSettingValue("shuffle", !!playback?.shuffle_state); setOptimisticSetting("shuffle", value); $("shuffle").classList.toggle("active", value); void setting({ shuffle: value }); };
-$("repeat").onclick = () => { const current = optimisticSettingValue("repeat", playback?.repeat_state || "off"); const value = current === "off" ? "context" : "off"; setOptimisticSetting("repeat", value); $("repeat").classList.toggle("active", value !== "off"); void setting({ repeat: value }); };
+$("repeat").onclick = () => { const current = optimisticSettingValue("repeat", playback?.repeat_state || "off"); const value = current === "off" ? "context" : current === "context" && !disallowed("toggling_repeat_track") ? "track" : "off"; repeatOneArmedUri = value === "track" ? playback?.item?.uri || null : null; repeatOneAutoOffPending = false; setOptimisticSetting("repeat", value); paintRepeatButton(value); void setting({ repeat: value }); };
 document.querySelectorAll("[data-album-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(button.dataset.albumChoice, controlStyle, displayStyle, lyricsBackground); };
 });
@@ -1807,6 +1874,10 @@ document.querySelectorAll("[data-lyrics-background-choice]").forEach((button) =>
 document.querySelectorAll("[data-player-background-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground, button.dataset.playerBackgroundChoice); };
 });
+document.querySelectorAll("[data-background-color-mode]").forEach((button) => {
+  button.onclick = () => { physicalFeedback("press"); applyBackgroundColorMode(button.dataset.backgroundColorMode, manualBackgroundColor); };
+});
+$("background-color-picker").oninput = (event) => applyBackgroundColorMode("manual", event.target.value);
 document.querySelectorAll("[data-lyric-style-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground, playerBackgroundStyle, button.dataset.lyricStyleChoice); };
 });document.querySelectorAll("[data-playback-bar-choice]").forEach((button) => {
@@ -1913,10 +1984,10 @@ remote.addEventListener("pointerup", (event) => {
 remote.addEventListener("pointercancel", () => { sideControlGesture = null; }, true);
 $("copy-address").onclick = async () => {
   const address = pairingInfo?.urls?.[0] || location.origin;
-  try { await navigator.clipboard.writeText(address); setMessage("LAN address copied."); }
+  try { await navigator.clipboard.writeText(address); setMessage("Spotify redirect address copied."); }
   catch { setMessage(`Open ${address} on the other phone.`); }
 };
-$("unpair-phone").onclick = () => { physicalFeedback("press"); localStorage.removeItem("turntable-session"); location.reload(); };
+$("unpair-phone").onclick = () => { physicalFeedback("press"); window.TurntableSpotify?.disconnect?.(); localStorage.removeItem("turntable-session"); location.reload(); };
 
 const screen = document.querySelector(".screen");
 screen.addEventListener("pointerdown", (event) => {
@@ -2089,6 +2160,7 @@ albumCard.addEventListener("pointerup", finishAlbumSwipe);
 albumCard.addEventListener("pointercancel", () => { artSwipe = null; resetAlbumCard(); });
 
 applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground);
+applyBackgroundColorMode(backgroundColorMode, manualBackgroundColor);
 applyVolumeWeight(volumeWeight);
 applyLayoutProfile(layoutProfile);
 applyUIFontScale(uiFontScale);

@@ -1,6 +1,6 @@
 {
   "name": "turntable-remote-android",
-  "version": "8.36.0",
+  "version": "0.9.5",
   "private": true,
   "type": "module",
   "scripts": {

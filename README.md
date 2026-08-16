@@ -13,7 +13,7 @@ Read [Spotify setup and callback hosting](docs/SPOTIFY-SETUP.md) before signing 
 
 ## Internal product label
 
-`ver(A.8.36)` tracks the current Turntable feature generation. Android's numeric build version is maintained separately for installation updates.
+`ver(A.9.05)` tracks the current Turntable feature generation. Android's numeric build version is maintained separately for installation updates.
 
 ## Development
 
