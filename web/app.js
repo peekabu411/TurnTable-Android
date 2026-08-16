@@ -1780,7 +1780,26 @@ $("pair").onclick = async () => {
     pairButton.disabled = false;
     pairButton.textContent = originalLabel;
   }
-};$("pin").addEventListener("keydown", (event) => { if (event.key === "Enter") $("pair").click(); });
+};$("open-spotify-dashboard").onclick = async () => {
+  try {
+    await window.TurntableSpotify?.openDeveloperDashboard?.();
+    $("pair-error").textContent = "Finish setup in the browser, then return here to paste your Client ID.";
+  } catch (error) {
+    $("pair-error").textContent = error.message || "Could not open the Spotify Developer Dashboard.";
+  }
+};
+$("copy-spotify-redirect").onclick = async () => {
+  const button = $("copy-spotify-redirect");
+  try {
+    await navigator.clipboard.writeText(window.TurntableSpotify?.redirectUri || "https://peekabu411.github.io/spotify/callback");
+    button.textContent = "Redirect URI Copied";
+    $("pair-error").textContent = "Paste that exact address into Spotify's Redirect URIs field, then save.";
+  } catch (error) {
+    $("pair-error").textContent = "Copy the Redirect URI shown above exactly, including https://.";
+  }
+  setTimeout(() => { button.textContent = "Copy Redirect URI"; }, 1800);
+};
+$("pin").addEventListener("keydown", (event) => { if (event.key === "Enter") $("pair").click(); });
 document.querySelectorAll("[data-view]").forEach((button) => button.onclick = () => { switchView(button.dataset.view); setTopBarHidden(true); });
 if ($("back")) $("back").onclick = () => { switchView("player"); setTopBarHidden(true); };
 $("refresh").onclick = async () => {

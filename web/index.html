@@ -25,6 +25,20 @@
         <p class="kicker">STANDALONE SPOTIFY REMOTE</p>
         <h1>Control the music<br>from your phone.</h1>
         <p class="pair-copy">Enter your Spotify Developer Client ID to connect this phone directly to Spotify.</p>
+        <section class="spotify-setup" aria-labelledby="spotify-setup-title">
+          <div class="spotify-setup-heading"><small>FIRST-TIME SETUP</small><strong id="spotify-setup-title">Create your Spotify connection</strong></div>
+          <ol>
+            <li>Open the Spotify Developer Dashboard and sign in.</li>
+            <li>Create an app, enable <b>Web API</b>, then open its settings.</li>
+            <li>Add this exact Redirect URI and save: <code>https://peekabu411.github.io/spotify/callback</code></li>
+            <li>Copy its <b>Client ID</b>, return here, and paste it below.</li>
+          </ol>
+          <div class="spotify-setup-actions">
+            <button id="open-spotify-dashboard" type="button">Open Spotify Developer</button>
+            <button id="copy-spotify-redirect" type="button" class="secondary">Copy Redirect URI</button>
+          </div>
+          <p>Only the Client ID belongs here. Never paste or share your Client Secret.</p>
+        </section>
         <div class="pin-row">
           <input id="pin" inputmode="text" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Spotify Client ID" aria-label="Spotify Developer Client ID">
           <button id="pair">Connect Spotify</button>

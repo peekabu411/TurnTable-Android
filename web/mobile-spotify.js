@@ -2,6 +2,7 @@
   "use strict";
   const REDIRECT_URI = "https://peekabu411.github.io/spotify/callback";
   const ACCOUNT_URL = "https://accounts.spotify.com";
+  const DEVELOPER_DASHBOARD_URL = "https://developer.spotify.com/dashboard";
   const API_URL = "https://api.spotify.com/v1";
   const CLIENT_ID_KEY = "turntable-spotify-client-id";
   const TOKEN_KEY = "turntable-spotify-tokens";
@@ -79,7 +80,7 @@
 
   const browserPlugin = () => window.Capacitor?.Plugins?.Browser;
 
-  async function openAuthorizationBrowser(url) {
+  async function openSpotifyBrowser(url) {
     const spotifyAuth = window.Capacitor?.Plugins?.SpotifyAuth;
     if (spotifyAuth?.open) {
       await spotifyAuth.open({ url });
@@ -105,7 +106,7 @@
       code_challenge_method: "S256", code_challenge: await sha256(verifier),
       scope: "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative"
     });
-    await openAuthorizationBrowser(ACCOUNT_URL + "/authorize?" + query);
+    await openSpotifyBrowser(ACCOUNT_URL + "/authorize?" + query);
   }
 
   async function finishAuthorization(url) {
@@ -209,6 +210,7 @@
   if (tokenData() && !localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, "spotify-direct");
   window.TurntableSpotify = {
     disconnect() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_ID_KEY); localStorage.removeItem(SESSION_KEY); },
-    redirectUri: REDIRECT_URI
+    redirectUri: REDIRECT_URI,
+    openDeveloperDashboard() { return openSpotifyBrowser(DEVELOPER_DASHBOARD_URL); }
   };
 })();
