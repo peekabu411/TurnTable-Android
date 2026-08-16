@@ -14,6 +14,7 @@
   let requestCount = 0;
   let cacheHits = 0;
   let lastRequestAt = 0;
+  let redirectInProgress = false;
 
   const json = (data, status = 200) => new Response(status === 204 ? null : JSON.stringify(data), {
     status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
@@ -99,8 +100,8 @@
     const verifier = random(96);
     const state = random(32);
     localStorage.setItem(CLIENT_ID_KEY, clientId);
-    sessionStorage.setItem(VERIFIER_KEY, verifier);
-    sessionStorage.setItem(STATE_KEY, state);
+    localStorage.setItem(VERIFIER_KEY, verifier);
+    localStorage.setItem(STATE_KEY, state);
     const query = new URLSearchParams({
       client_id: clientId, response_type: "code", redirect_uri: REDIRECT_URI, state,
       code_challenge_method: "S256", code_challenge: await sha256(verifier),
@@ -115,8 +116,8 @@
     if (failure) throw new Error("Spotify authorization was not completed: " + failure + ".");
     const code = callback.searchParams.get("code");
     const state = callback.searchParams.get("state");
-    const verifier = sessionStorage.getItem(VERIFIER_KEY);
-    if (!code || !verifier || state !== sessionStorage.getItem(STATE_KEY)) throw new Error("Spotify authorization could not be verified. Connect again.");
+    const verifier = localStorage.getItem(VERIFIER_KEY);
+    if (!code || !verifier || state !== localStorage.getItem(STATE_KEY)) throw new Error("Spotify authorization could not be verified. Connect again.");
     const response = await nativeFetch(ACCOUNT_URL + "/api/token", {
       method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
@@ -128,7 +129,7 @@
     if (!response.ok || !tokens.access_token) throw new Error(tokens.error_description || "Spotify did not return an access token.");
     saveTokens({ ...tokens, expires_at: Date.now() + Number(tokens.expires_in || 3600) * 1000 });
     localStorage.setItem(SESSION_KEY, "spotify-direct");
-    sessionStorage.removeItem(VERIFIER_KEY); sessionStorage.removeItem(STATE_KEY);
+    localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY);
   }
 
   function apiError(error) {
@@ -197,8 +198,11 @@
     return nativeFetch(input, init);
   };
   const completeRedirect = (url) => {
+    if (redirectInProgress) return;
+    redirectInProgress = true;
     Promise.resolve(browserPlugin()?.close?.()).catch(() => {}).finally(() => finishAuthorization(String(url)).then(() => location.reload()).catch((error) => {
       localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY);
       location.replace("index.html?spotify_error=" + encodeURIComponent(error.message));
     }));
   };
@@ -206,10 +210,12 @@
     if (String(url).startsWith(REDIRECT_URI)) completeRedirect(url);
   });  window.addEventListener("turntable:spotify-redirect", (event) => {
     completeRedirect(event.detail);
-  });
+  });  void window.Capacitor?.Plugins?.SpotifyAuth?.consumePendingRedirect?.().then(({ url } = {}) => {
+    if (String(url || "").startsWith(REDIRECT_URI)) completeRedirect(url);
+  }).catch(() => {});
   if (tokenData() && !localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, "spotify-direct");
   window.TurntableSpotify = {
-    disconnect() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_ID_KEY); localStorage.removeItem(SESSION_KEY); },
+    disconnect() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_ID_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); },
     redirectUri: REDIRECT_URI,
     openDeveloperDashboard() { return openSpotifyBrowser(DEVELOPER_DASHBOARD_URL); }
   };

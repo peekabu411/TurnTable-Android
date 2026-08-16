@@ -21,9 +21,11 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void deliverSpotifyRedirect(Intent intent) {
-        if (intent == null || intent.getData() == null || getBridge() == null) return;
+        if (intent == null || intent.getData() == null) return;
         String url = intent.getData().toString();
         if (!url.startsWith("https://peekabu411.github.io/spotify/callback")) return;
+        SpotifyAuthPlugin.savePendingRedirect(getApplicationContext(), url);
+        if (getBridge() == null) return;
         getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(
             "window.dispatchEvent(new CustomEvent('turntable:spotify-redirect',{detail:" + org.json.JSONObject.quote(url) + "}));", null));
     }
