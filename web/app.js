@@ -1971,7 +1971,12 @@ function setSideControlsHidden(hidden) {
   document.querySelector(".dial-rail").setAttribute("aria-hidden", String(shouldHide));
   if (shouldHide) physicalFeedback("press");
 }
-$("side-control-reveal").onclick = () => {
+const sideControlReveal = $("side-control-reveal");
+sideControlReveal.addEventListener("pointerdown", (event) => {
+  if (!remote.classList.contains("side-controls-hidden")) return;
+  sideControlGesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, mode: "show" };
+}, true);
+sideControlReveal.onclick = () => {
   physicalFeedback("press");
   setSideControlsHidden(false);
 };

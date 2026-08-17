@@ -502,3 +502,20 @@
 @media (orientation:landscape) and (max-height:500px){.shell{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}.device{width:100%;height:100%;max-height:100%}.screen{padding-right:calc(54px + env(safe-area-inset-right))}.player-view{padding:15px calc(55px + env(safe-area-inset-right)) 15px max(20px,env(safe-area-inset-left))}.player-info{display:flex;min-height:0;flex-direction:column;justify-content:center}.player-info .timeline{margin-top:30px}.player-info .transport{margin-top:12px}.spotify-connection-card{min-height:0;padding:11px;gap:7px}.spotify-connection-card>div:first-child b{font-size:14px}.spotify-connection-actions button,.spotify-client-editor button{padding:8px 10px}.spotify-client-editor input{padding:7px}.spotify-connection-footer{margin-top:2px}}
 /* A50 landscape refinement: preserve cutout margin, lift artwork and bring transport toward the timeline. */
 @media (orientation:landscape) and (max-height:500px){.player-view .art-stage{transform:translateY(-18px)}.device[data-current-view="player"] .transport{bottom:calc(42px + env(safe-area-inset-bottom));padding-top:4px}.device[data-current-view="player"] .timeline{margin-bottom:0}}
+/* A.9.10 final A50 polish: one readable update stream and notch-to-edge player background. */
+.update-log-list{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:none!important;grid-auto-flow:row!important}
+.update-log-list li{grid-template-columns:76px minmax(0,1fr)!important;column-gap:12px!important;padding:10px 9px!important}
+.update-log-list li>b{font-size:calc(9px * var(--ui-font-scale))!important;line-height:1.35!important}
+.update-log-list li>span{font-size:calc(11px * var(--ui-font-scale))!important;line-height:1.45!important}
+@media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
+  .update-log-card{width:min(760px,calc(100vw - 28px))}
+  .update-log-list{max-height:calc(100dvh - 112px);padding:7px 14px 12px}
+  .update-log-list li{grid-template-columns:72px minmax(0,1fr)!important;column-gap:11px!important;padding:9px 7px!important}
+  .update-log-list li>b{font-size:9px!important}
+  .update-log-list li>span{font-size:10px!important;line-height:1.42!important}
+  .shell{padding:0}
+  .player-view{padding-left:20px}
+  .player-view .art-stage{transform:translateY(-33px)}
+  .device[data-current-view="player"] .transport{bottom:calc(27px + env(safe-area-inset-bottom))}
+  .bar-handle:active:not(:disabled){transform:translateX(-50%) scale(.97)}
+}
