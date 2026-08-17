@@ -721,3 +721,10 @@
   .device[data-current-view="player"][data-playback-bar="divider"] .transport::before{top:0!important;right:0!important}
   .device[data-current-view="player"][data-playback-bar="divider"] .transport button{top:0!important}
 }
+/* A.9.11.13: final compact Default and Divider button alignment. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-playback-bar="default"]{--default-transport-height:clamp(43px,calc(29vh - 35px),75px)}
+  .device[data-current-view="player"][data-playback-bar="divider"] .timeline{bottom:calc(var(--control-band) - 40px)!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport::before{top:10px!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport button{top:-5px!important}
+}
