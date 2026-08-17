@@ -151,9 +151,9 @@
         return json({ session: "spotify-direct", snapshot: null });
       }
       if (route === "/api/pairing-info") return json({ pin: "Direct Spotify", urls: [REDIRECT_URI] });
-      if (route === "/api/health") return json({ app: "turntable-android", version: "A.9.09", status: "running" });
+      if (route === "/api/health") return json({ app: "turntable-android", version: "A.9.10", status: "running" });
       if (route === "/api/diagnostics") return json({
-        version: "A.9.09", server_time: Date.now(), uptime_seconds: 0,
+        version: "A.9.10", server_time: Date.now(), uptime_seconds: 0,
         requests: { last_minute: requestCount, last_hour: requestCount, total_since_start: requestCount, cache_hits_since_start: cacheHits, last_request_at: lastRequestAt, top_paths: [] },
         connection: { state: tokenData() ? "connected" : "waiting", cooldown_seconds: 0, last_playback_error: null, playback_cache_age_seconds: 0 },
         cache: { playback: false, devices: 0, queue: 0, resources: [] }
