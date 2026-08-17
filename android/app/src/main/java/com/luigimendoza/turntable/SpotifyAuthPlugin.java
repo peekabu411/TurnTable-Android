@@ -34,9 +34,9 @@ public class SpotifyAuthPlugin extends Plugin {
         String url = call.getString("url");
         Uri uri = url == null ? null : Uri.parse(url);
         String host = uri == null ? null : uri.getHost();
-        boolean allowed = "accounts.spotify.com".equals(host) || "developer.spotify.com".equals(host);
+        boolean allowed = "accounts.spotify.com".equals(host) || "developer.spotify.com".equals(host) || "open.spotify.com".equals(host);
         if (uri == null || !"https".equals(uri.getScheme()) || !allowed) {
-            call.reject("A valid Spotify authorization or developer dashboard URL is required.");
+            call.reject("A valid Spotify URL is required.");
             return;
         }
         try {

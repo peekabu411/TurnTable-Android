@@ -1562,7 +1562,20 @@ function updateTrackCopy(track, context = playback?.context, updateContext = tru
   if (updateContext) $("context").textContent = context?.type ? "PLAYING FROM " + context.type.toUpperCase() : "READY FOR SPOTIFY";
 }
 
-function previewQueuedTrack(track = state?.queue?.[0]) {
+function spotifyItemUrl(track) {
+  const direct = track?.external_urls?.spotify;
+  if (typeof direct === "string" && /^https:\/\/open\.spotify\.com\//.test(direct)) return direct;
+  const parts = String(track?.uri || "").split(":");
+  const kind = parts[1]; const id = parts[2];
+  return kind && id ? `https://open.spotify.com/${kind}/${encodeURIComponent(id)}` : null;
+}
+function syncSpotifyAttribution(track) {
+  const button = $("open-current-spotify");
+  const url = spotifyItemUrl(track);
+  button.hidden = !url;
+  button.disabled = !url;
+  button.dataset.spotifyUrl = url || "";
+}function previewQueuedTrack(track = state?.queue?.[0]) {
   if (!track) return false;
   pendingArtworkUri = track.uri || null;
   updateTrackCopy(track, null, false);
@@ -1572,6 +1585,7 @@ function render(data) {
   const previousObservedUri = observedPlaybackUri;
   const previousRemaining = progressClock.duration ? Math.max(0, progressClock.duration - clockPosition()) : Infinity;
   state = { ...(state || {}), ...data }; playback = state.playback; const track = playback?.item;
+  syncSpotifyAttribution(track);
   remote.classList.toggle("is-playing", !!playback?.is_playing);
 
 
@@ -2401,7 +2415,12 @@ $("open-link-settings").onclick = async () => {
 };
 $("recheck-link-settings").onclick = () => { void recheckAppLinkSettings(); };
 $("continue-link-setup").onclick = () => { localStorage.setItem(APP_LINK_GUIDE_COMPLETED_KEY, "1"); startTurntableExperience(); };
-$("reset-link-setup").onclick = () => {
+$("open-current-spotify").onclick = async () => {
+  const url = $("open-current-spotify").dataset.spotifyUrl;
+  if (!url) return;
+  try { await window.TurntableSpotify?.openSpotifyItem?.(url); }
+  catch { setMessage("Could not open the current item in Spotify."); }
+};$("reset-link-setup").onclick = () => {
   localStorage.removeItem(APP_LINK_GUIDE_COMPLETED_KEY);
   location.reload();
 };

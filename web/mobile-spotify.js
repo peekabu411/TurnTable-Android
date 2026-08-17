@@ -243,6 +243,7 @@
       return beginAuthorization(clientId);
     },
     redirectUri: REDIRECT_URI,
+    openSpotifyItem(url) { return openSpotifyBrowser(url); },
     openDeveloperDashboard() { return openSpotifyBrowser(DEVELOPER_DASHBOARD_URL); }
   };
 })();

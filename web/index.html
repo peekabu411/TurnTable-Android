@@ -91,6 +91,9 @@
               <div id="background-b" class="player-background-layer"></div>
               <div class="player-background-shade"></div>
             </div>
+            <button id="open-current-spotify" class="spotify-attribution-button" type="button" aria-label="Open current item in Spotify" title="Open in Spotify" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1ED760"/><path d="M17.52 10.2a.75.75 0 0 1-1.03.25 8.67 8.67 0 0 0-8.98-.57.75.75 0 1 1-.75-1.3 10.17 10.17 0 0 1 10.5.67.75.75 0 0 1 .26 1.03Zm-1.47 2.3a.63.63 0 0 1-.86.21 7.2 7.2 0 0 0-7.49-.47.63.63 0 1 1-.62-1.1 8.46 8.46 0 0 1 8.77.55.63.63 0 0 1 .2.86Zm-1.3 2.18a.5.5 0 0 1-.69.17 5.87 5.87 0 0 0-6.11-.38.5.5 0 1 1-.5-.87 6.87 6.87 0 0 1 7.14.44.5.5 0 0 1 .16.68Z" fill="#000"/></svg>
+            </button>
             <div class="art-stage">
               <div class="ambient" id="ambient"></div>
               <div class="next-card" aria-hidden="true">
@@ -312,6 +315,7 @@
               </div>
 
             </div>
+            <p class="spotify-legal">Turntable is not affiliated with, endorsed by, or sponsored by Spotify.</p>
             <p class="hint guide-copy">Swipe down in the center to show the top keys; swipe up to hide them.</p>
           </section>
         </div>
@@ -382,6 +386,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.12.3)</b><span>Added a small top-right Spotify attribution button for the current item and a centered Spotify non-affiliation statement in Settings.</span></li>
             <li><b>ver(A.9.12.2)</b><span>Added Settings → Setup → Show link setup again, plus a complete sharing, install, and troubleshooting guide in the repository.</span></li>
             <li><b>ver(A.9.12.1)</b><span>Added a first-launch Android link-verification guide. It checks peekabu411.github.io, opens Turntable's supported-link settings, and continues once enabled.</span></li>
             <li><b>ver(A.9.12)</b><span>Raised the Divider Scroll lyrics panel by 15 px only, and made the top-bar Refresh control icon-only. Other lyric styles, progress, and transport geometry remain unchanged.</span></li>
