@@ -566,6 +566,19 @@
   .device[data-layout-resolved="portrait"] .transport button{top:0!important}
   .device[data-layout-resolved="portrait"] .dial-rail{padding:6px calc(var(--safe-right) + 18px) calc(var(--safe-bottom) + 6px) calc(var(--safe-left) + 18px)!important}
 }
+/* Landscape player composition: stable content panels and player-only volume control. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device:not([data-current-view="player"]) .dial-rail{display:none!important;visibility:hidden!important;pointer-events:none!important}
+  .device[data-current-view="player"][data-layout-resolved="compact"]{--art-size:clamp(250px,66vh,300px)}
+  .device[data-current-view="player"][data-layout-resolved="standard"]{--art-size:clamp(280px,60vh,360px)}
+  .device[data-current-view="player"][data-layout-resolved="wide"]{--art-size:clamp(320px,58vh,420px)}
+  .device[data-current-view="player"] .player-view.active{grid-template-columns:minmax(0,var(--art-size)) minmax(0,1fr);column-gap:clamp(24px,4vw,56px);padding-bottom:calc(var(--safe-bottom) + var(--transport-height) + 28px)!important}
+  .device[data-current-view="player"] .player-view.active .art-stage{justify-self:center;align-self:center}
+  .device[data-current-view="player"] .player-info{align-self:center}
+  .device[data-current-view="player"] .track-copy{max-width:min(100%,780px)}
+  .device[data-current-view="player"] .timeline{bottom:calc(var(--safe-bottom) + var(--transport-height) + 10px)}
+  .device[data-current-view="player"] .transport{bottom:var(--safe-bottom)!important}
+}
 /* Queue is part of the transport row, not a separate floating control. */
 .transport .queue-toggle{position:relative!important;z-index:auto!important;right:auto!important;bottom:auto!important;display:grid!important;flex:0 0 auto;width:44px;height:44px;margin:0;padding:0;border:0!important;border-radius:0!important;background:transparent!important;color:#fff;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transform:none!important}
 .transport .queue-toggle:active{transform:scale(.9)!important}.device.queue-open .transport .queue-toggle{color:var(--green)}
