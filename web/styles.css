@@ -686,3 +686,23 @@
   .device[data-current-view="player"] .lyric-stage-focus .current{font-size:clamp(30px,5.2vw,56px)!important}
   .device[data-current-view="player"] .lyric-stage-focus .neighbor{font-size:clamp(14px,1.9vw,22px)!important}
 }
+/* A.9.11.10: Default keeps progress beneath content; Divider remains the screen-edge format. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"] .player-view.active .art-stage{transform:translateY(-35px)!important}
+  .device[data-current-view="player"][data-display="info"] .track-copy{transform:translateY(-15px)!important}
+
+  /* Two visible lyric lines; the current line smoothly follows playback through the list. */
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-lines:not(.lyric-stage-mode){height:calc(2.42em + 10px)!important;align-self:center!important;scroll-behavior:smooth!important}
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-lines:not(.lyric-stage-mode) p{line-height:1.21!important;padding:3px 0!important}
+  .device[data-current-view="player"] .lyric-stage{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;max-height:2.3em!important;overflow:hidden!important;white-space:normal!important}
+  .device[data-current-view="player"] .lyric-stage-focus{white-space:normal!important}
+  .device[data-current-view="player"] .lyrics-lines p{font-size:calc(16px * var(--ui-font-scale))!important}
+
+  /* Default progress belongs directly below its information or lyrics panel. */
+  .device[data-current-view="player"][data-playback-bar="default"] .timeline{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;bottom:auto!important;flex:0 0 auto!important;align-self:stretch!important;width:100%!important;max-width:none!important;height:20px!important;margin:14px 0 0!important;transform:none!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport{left:0!important;right:0!important;bottom:calc(var(--safe-bottom) + 6px)!important;padding:0!important;justify-content:space-evenly!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport::before{top:0!important}
+
+  /* Divider retains the full-width screen-edge progress treatment. */
+  .device[data-current-view="player"][data-playback-bar="divider"] .timeline{position:absolute!important;left:0!important;right:0!important;bottom:var(--control-band)!important;width:auto!important}
+}
