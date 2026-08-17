@@ -5,6 +5,7 @@
   const DEVELOPER_DASHBOARD_URL = "https://developer.spotify.com/dashboard";
   const API_URL = "https://api.spotify.com/v1";
   const CLIENT_ID_KEY = "turntable-spotify-client-id";
+  const CONNECTION_NAME_KEY = "turntable-spotify-connection-name";
   const TOKEN_KEY = "turntable-spotify-tokens";
   const VERIFIER_KEY = "turntable-spotify-pkce-verifier";
   const STATE_KEY = "turntable-spotify-pkce-state";
@@ -150,9 +151,9 @@
         return json({ session: "spotify-direct", snapshot: null });
       }
       if (route === "/api/pairing-info") return json({ pin: "Direct Spotify", urls: [REDIRECT_URI] });
-      if (route === "/api/health") return json({ app: "turntable-android", version: "A.9.08", status: "running" });
+      if (route === "/api/health") return json({ app: "turntable-android", version: "A.9.09", status: "running" });
       if (route === "/api/diagnostics") return json({
-        version: "A.9.08", server_time: Date.now(), uptime_seconds: 0,
+        version: "A.9.09", server_time: Date.now(), uptime_seconds: 0,
         requests: { last_minute: requestCount, last_hour: requestCount, total_since_start: requestCount, cache_hits_since_start: cacheHits, last_request_at: lastRequestAt, top_paths: [] },
         connection: { state: tokenData() ? "connected" : "waiting", cooldown_seconds: 0, last_playback_error: null, playback_cache_age_seconds: 0 },
         cache: { playback: false, devices: 0, queue: 0, resources: [] }
@@ -214,8 +215,26 @@
     if (String(url || "").startsWith(REDIRECT_URI)) completeRedirect(url);
   }).catch(() => {});
   if (tokenData() && !localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, "spotify-direct");
+  const clearAuthorization = () => { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); };
+  const validClientId = (clientId) => /^[A-Za-z0-9]{20,64}$/.test(String(clientId || ""));
   window.TurntableSpotify = {
-    disconnect() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_ID_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); },
+    disconnect() { clearAuthorization(); },
+    forget() { clearAuthorization(); localStorage.removeItem(CLIENT_ID_KEY); localStorage.removeItem(CONNECTION_NAME_KEY); },
+    getConnection() {
+      const clientId = localStorage.getItem(CLIENT_ID_KEY) || "";
+      return { clientId, name: localStorage.getItem(CONNECTION_NAME_KEY) || "Spotify app", connected: !!tokenData(), displayId: clientId ? `${clientId.slice(0, 4)}••••••••${clientId.slice(-4)}` : "No Client ID saved" };
+    },
+    saveConnection({ clientId, name } = {}) {
+      const nextId = String(clientId || "").trim();
+      if (!validClientId(nextId)) throw new Error("Enter a valid Spotify Client ID.");
+      localStorage.setItem(CLIENT_ID_KEY, nextId);
+      localStorage.setItem(CONNECTION_NAME_KEY, String(name || "Spotify app").trim().slice(0, 48) || "Spotify app");
+    },
+    reconnect() {
+      const clientId = localStorage.getItem(CLIENT_ID_KEY) || "";
+      if (!validClientId(clientId)) throw new Error("Save a Spotify Client ID first.");
+      return beginAuthorization(clientId);
+    },
     redirectUri: REDIRECT_URI,
     openDeveloperDashboard() { return openSpotifyBrowser(DEVELOPER_DASHBOARD_URL); }
   };

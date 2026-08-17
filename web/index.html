@@ -102,11 +102,11 @@
                 <div><span id="elapsed">0:00</span><span id="duration">0:00</span></div>
               </div>
               <div class="transport">
-                <button id="shuffle" class="transport-small" aria-label="Shuffle">&#8644;</button>
-                <button id="previous" aria-label="Previous track">&#9664;&#9664;</button>
-                <button id="play" class="play-button" aria-label="Play">&#9654;</button>
-                <button id="next" aria-label="Next track">&#9654;&#9654;</button>
-                <button id="repeat" class="transport-small" aria-label="Repeat off" data-repeat-state="off"><span class="repeat-icon" aria-hidden="true">&#8635;</span><b class="repeat-one" aria-hidden="true">1</b></button>
+                <button id="shuffle" class="transport-small" aria-label="Shuffle"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l10 10h3M17 7h3v3M20 7l-3 3M4 17h3l3-3"/></svg></button>
+                <button id="previous" aria-label="Previous track"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 6 9 12l9 6z"/></svg></button>
+                <button id="play" class="play-button" aria-label="Play"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg></button>
+                <button id="next" aria-label="Next track"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 6l9 6-9 6z"/></svg></button>
+                <button id="repeat" class="transport-small" aria-label="Repeat off" data-repeat-state="off"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h11l-2-2M19 17H8l2 2M17 7l2-2M5 17l-2 2"/></svg><b class="repeat-one" aria-hidden="true">1</b></button>
               </div>
             </div>
           </section>
@@ -125,17 +125,25 @@
             </section>
             <div class="devices-layout">
               <div id="device-list" class="device-list"><p class="empty">Looking for Spotify devices...</p></div>
-              <section class="pair-another" aria-labelledby="pair-another-title">
-                <div><small>PAIR ANOTHER PHONE</small><b id="pair-another-title">Open this address</b></div>
-                <button id="copy-address" class="address-button"><span id="pair-address">Loading LAN address...</span><small>Tap to copy</small></button>
-                <div class="pair-code-row"><span>PAIRING PIN</span><strong id="settings-pin">••••</strong></div>
-                <button id="unpair-phone" class="unpair-button">Unpair this phone</button>
+              <section class="spotify-connection-card" aria-labelledby="spotify-connection-title">
+                <div><small>SPOTIFY CONNECTION</small><b id="spotify-connection-title">Spotify app</b></div>
+                <p id="spotify-client-id-display">No Client ID saved</p>
+                <div class="spotify-connection-actions">
+                  <button id="spotify-reconnect" type="button">Reconnect Spotify</button>
+                  <button id="spotify-change-client" type="button" class="secondary">Edit</button>
+                </div>
+                <div id="spotify-client-editor" class="spotify-client-editor" hidden>
+                  <label>LOCAL NAME<input id="spotify-connection-name" maxlength="48" autocomplete="off" placeholder="Spotify app"></label>
+                  <label>CLIENT ID<input id="spotify-connection-client-id" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Spotify Client ID"></label>
+                  <button id="spotify-save-client" type="button">Save connection</button>
+                </div>
+                <div class="spotify-connection-footer"><button id="spotify-disconnect" type="button">Disconnect</button><button id="spotify-forget" type="button">Forget this connection</button></div>
               </section>
             </div>
           </section>
 
           <section class="view controls-view" data-panel="settings">
-            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><div class="settings-preset-tools" aria-label="Preset controls"><div class="preset-selector-shell"><select id="settings-preset-select" class="preset-selector" aria-label="Select visual preset"></select></div><button id="preset-save" type="button" disabled>Saved</button><button id="preset-manage" type="button" aria-label="Create or rename presets">&#8943;</button></div><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version A.9.08"><small>REMOTE VERSION</small><b>ver(A.9.08)</b></button></div>
+            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><div class="settings-preset-tools" aria-label="Preset controls"><div class="preset-selector-shell"><select id="settings-preset-select" class="preset-selector" aria-label="Select visual preset"></select></div><button id="preset-save" type="button" disabled>Saved</button><button id="preset-manage" type="button" aria-label="Create or rename presets">&#8943;</button></div><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version A.9.09"><small>REMOTE VERSION</small><b>ver(A.9.09)</b></button></div>
             <div class="settings-columns">
               <div class="settings-controls">
                 <section class="theme-picker" aria-labelledby="theme-title">

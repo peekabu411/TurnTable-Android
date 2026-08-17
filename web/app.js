@@ -98,8 +98,8 @@ localStorage.setItem("turntable-lyric-offset-default-v2", "applied");
 const VOLUME_WEIGHT_SENSITIVITY = { light: .28, medium: .19, heavy: .12 };
 const DIAL_MULTI_TAP_MS = 420;
 const SIDE_CONTROL_HIDE_ZONE_START = 0.56;
-const ACTIVE_STATUS_REFRESH_MS = 5_000;
-const IDLE_STATUS_REFRESH_MS = 15_000;
+const ACTIVE_STATUS_REFRESH_MS = 10_000;
+const IDLE_STATUS_REFRESH_MS = 30_000;
 const ENDING_STATUS_REFRESH_MS = 1_000;
 const ENDING_STATUS_WINDOW_MS = 12_000;
 const DEVICES_VIEW_REFRESH_MS = 30_000;
@@ -1290,9 +1290,18 @@ function renderDevices(devices = []) {
   });
 }
 
-function refreshDevicesView() {
-  const devicesStale = !devicesLastRefreshAt || Date.now() - devicesLastRefreshAt >= DEVICES_VIEW_REFRESH_MS;
-  return Promise.allSettled([loadDevices(devicesStale), loadPairingInfo(true)]);
+function renderSpotifyConnection() {
+  const connection = window.TurntableSpotify?.getConnection?.() || { clientId: "", name: "Spotify app", displayId: "No Client ID saved", connected: false };
+  $("spotify-connection-title").textContent = connection.name || "Spotify app";
+  $("spotify-client-id-display").textContent = connection.displayId;
+  $("spotify-reconnect").disabled = !connection.clientId;
+  $("spotify-disconnect").disabled = !connection.connected;
+  $("spotify-connection-name").value = connection.name || "Spotify app";
+  $("spotify-connection-client-id").value = connection.clientId || "";
+}function refreshDevicesView() {
+  renderSpotifyConnection();
+const devicesStale = !devicesLastRefreshAt || Date.now() - devicesLastRefreshAt >= DEVICES_VIEW_REFRESH_MS;
+  return loadDevices(devicesStale);
 }
 function scheduleDevicesViewRefresh(delay = DEVICES_VIEW_REFRESH_MS) {
   if (devicesViewRefreshTimer) clearTimeout(devicesViewRefreshTimer);
@@ -1343,8 +1352,10 @@ function dialVolumeFromDrag(clientY, start) {
   return Math.max(0, Math.min(100, start.volume + (start.y - clientY) * sensitivity));
 }
 
+const PLAY_ICON = '<svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
+const PAUSE_ICON = '<svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
 function paintPlaybackButton(playing) {
-  $("play").innerHTML = playing ? "&#10074;&#10074;" : "&#9654;";
+  $("play").innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
   $("play").setAttribute("aria-label", playing ? "Pause" : "Play");
   $("dial").setAttribute("aria-label", (playing ? "Pause" : "Play") + "; swipe vertically for volume");
 }
@@ -2001,13 +2012,31 @@ remote.addEventListener("pointerup", (event) => {
   }
 }, true);
 remote.addEventListener("pointercancel", () => { sideControlGesture = null; }, true);
-$("copy-address").onclick = async () => {
-  const address = pairingInfo?.urls?.[0] || location.origin;
-  try { await navigator.clipboard.writeText(address); setMessage("Spotify redirect address copied."); }
-  catch { setMessage(`Open ${address} on the other phone.`); }
+function setSpotifyEditor(open) {
+  $("spotify-client-editor").hidden = !open;
+  if (open) $("spotify-connection-name").focus();
+}
+$("spotify-reconnect").onclick = async () => {
+  try { physicalFeedback("press"); await window.TurntableSpotify?.reconnect?.(); setMessage("Opening Spotify authorization..."); }
+  catch (error) { setMessage(error.message || "Could not reconnect Spotify."); }
 };
-$("unpair-phone").onclick = () => { physicalFeedback("press"); window.TurntableSpotify?.disconnect?.(); localStorage.removeItem("turntable-session"); location.reload(); };
-
+$("spotify-change-client").onclick = () => { physicalFeedback("press"); setSpotifyEditor($("spotify-client-editor").hidden); };
+$("spotify-save-client").onclick = () => {
+  try {
+    window.TurntableSpotify?.saveConnection?.({ clientId: $("spotify-connection-client-id").value, name: $("spotify-connection-name").value });
+    setSpotifyEditor(false); renderSpotifyConnection(); setMessage("Spotify connection saved on this phone."); physicalFeedback("press");
+  } catch (error) { setMessage(error.message || "Could not save the Spotify connection."); }
+};
+$("spotify-disconnect").onclick = () => {
+  if (!confirm("Disconnect Spotify from this phone? Your saved Client ID will remain for quick reconnection.")) return;
+  window.TurntableSpotify?.disconnect?.(); localStorage.removeItem("turntable-session"); location.reload();
+};
+$("spotify-forget").onclick = () => {
+  if (!confirm("Forget this Spotify connection? This removes the saved Client ID and requires setup again.")) return;
+  window.TurntableSpotify?.forget?.(); localStorage.removeItem("turntable-session"); location.reload();
+};
+renderSpotifyConnection();
+if (!$("pin").value) $("pin").value = window.TurntableSpotify?.getConnection?.().clientId || "";
 const screen = document.querySelector(".screen");
 screen.addEventListener("pointerdown", (event) => {
   if (event.target.closest("button,input,.album-art,.dial")) return;
