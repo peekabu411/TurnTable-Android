@@ -1894,37 +1894,19 @@ $("refresh").onclick = async () => {
   physicalFeedback("press");
   button.classList.add("refreshing");
   button.setAttribute("aria-busy", "true");
-  setMessage("Checking the PC server...");
-  const stamp = Date.now();
-  const fetchFresh = async (url, attempts = 10) => {
-    let lastError = new Error("The PC server did not answer.");
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      try {
-        const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-        if (response.ok) return response;
-        lastError = new Error(`PC server returned ${response.status}.`);
-      } catch (error) { lastError = error; }
-      if (attempt < attempts - 1) {
-        setMessage("The server is applying an update. Reconnecting...");
-        await new Promise((resolve) => setTimeout(resolve, 600));
-      }
-    }
-    throw lastError;
-  };
+  setMessage("Refreshing Now Playing...");
   try {
-    const healthResponse = await fetchFresh(`/api/health?app_refresh=${stamp}`);
-    const health = await healthResponse.json();
-    const nextUrl = new URL(location.href);
-    nextUrl.searchParams.set("app_refresh", String(stamp));
-    nextUrl.hash = "";
-    setMessage(`Loading Turntable ${health.version || "update"}...`);
-    await fetchFresh(nextUrl.toString());
-    setTimeout(() => location.replace(nextUrl.toString()), 100);
+    if (!session) throw new Error("Connect Spotify first.");
+    await refresh(true);
+    await loadQueue(true);
+    if (currentView === "devices") await refreshDevicesView();
+    scheduleStatusRefresh();
+    setMessage("Now Playing refreshed.");
   } catch (error) {
+    showError(error);
+  } finally {
     button.classList.remove("refreshing");
     button.setAttribute("aria-busy", "false");
-    setConnectionState("offline", "The app update could not be loaded because the PC server did not answer.");
-    setMessage(`Refresh failed: ${error.message} Keep the Dashboard running and try again.`);
   }
 };
 $("play").onclick = () => playerAction(playback?.is_playing ? "pause" : "play");
