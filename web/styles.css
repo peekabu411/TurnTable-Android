@@ -620,3 +620,16 @@
 .controls-view .theme-options button b{font-size:calc(13px * var(--ui-font-scale))!important}
 .controls-view .settings-group-heading strong{font-size:calc(12px * var(--ui-font-scale))!important}
 .controls-view .hint,.controls-view .pair-another,.controls-view .spotify-connection-card{font-size:calc(12px * var(--ui-font-scale))}
+/* A.9.11.6: fixed right-edge volume geometry and a single screen-anchored transport surface. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"]{--dial-size:176px;--side-reserve:88px;--dial-edge-offset:-88px}
+  .device[data-current-view="player"] .player-view.active .art-stage{transform:translateY(-15px)!important}
+  .device[data-current-view="player"] .player-info h2{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;min-height:0!important;max-height:2.08em!important;white-space:normal!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1.04!important}
+  .device[data-current-view="player"] .timeline{right:0!important}
+  .device[data-current-view="player"] .transport{right:0!important;bottom:calc(var(--safe-bottom) + 6px)!important;box-sizing:border-box!important;padding-right:var(--side-reserve)!important}
+  .device[data-current-view="player"] .transport::before{top:-30px!important;right:0!important}
+  .device[data-current-view="player"] .dial-rail{right:var(--dial-edge-offset)!important;width:var(--dial-size)!important}
+  .device[data-current-view="player"][data-control="bar"]{--side-reserve:34px;--dial-edge-offset:-32px}
+  .device[data-current-view="player"][data-control="bar"] .dial-rail{right:var(--dial-edge-offset)!important;width:64px!important}
+  .device[data-current-view="player"][data-control="bar"] .dial{width:64px!important}
+}

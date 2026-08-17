@@ -539,9 +539,20 @@ function renderLyrics(result = {}) {
 function normalizeLyricsProviderResult(record) {
   return { found: !!record, instrumental: !!record?.instrumental, syncedLyrics: record?.syncedLyrics || null, plainLyrics: record?.plainLyrics || null };
 }
+async function fetchLyricsProviderResponse(url) {
+  const nativeLyrics = window.Capacitor?.Plugins?.Lyrics;
+  if (nativeLyrics?.request) {
+    const response = await nativeLyrics.request({ url });
+    return {
+      ok: response.status >= 200 && response.status < 300,
+      status: response.status,
+      json: async () => JSON.parse(response.body || "null")
+    };
+  }
+  return fetch(url);
+}
 async function fetchLyricsFromProvider(track, exactQuery) {
-  // Keep this a CORS-simple request for Android WebView; a custom header can cause a blocked preflight.
-  const exactResponse = await fetch(`https://lrclib.net/api/get?${exactQuery}`);
+  const exactResponse = await fetchLyricsProviderResponse(`https://lrclib.net/api/get?${exactQuery}`);
   if (exactResponse.ok) return normalizeLyricsProviderResult(await exactResponse.json());
   if (exactResponse.status !== 404) throw new Error("Lyrics provider unavailable");
   const searchQuery = new URLSearchParams({
@@ -549,7 +560,7 @@ async function fetchLyricsFromProvider(track, exactQuery) {
     artist_name: artists(track),
     duration: String(track?.duration_ms || "")
   });
-  const searchResponse = await fetch(`https://lrclib.net/api/search?${searchQuery}`);
+  const searchResponse = await fetchLyricsProviderResponse(`https://lrclib.net/api/search?${searchQuery}`);
   if (!searchResponse.ok) throw new Error("Lyrics provider unavailable");
   const matches = await searchResponse.json();
   const bestMatch = Array.isArray(matches) ? matches.find((item) => item?.syncedLyrics || item?.plainLyrics) : null;
