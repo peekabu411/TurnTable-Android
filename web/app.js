@@ -658,13 +658,19 @@ function updateActiveLyrics(position) {
     if (lineIndex < 0 || !words.length || (lineIndex === activeLyricIndex && wordIndex === activeLyricWordIndex)) return;
     const stage = $("lyrics-lines").querySelector(".lyric-stage");
     if (!stage) return;
+    const lyricLineChanged = lineIndex !== activeLyricIndex;
     activeLyricIndex = lineIndex;
     activeLyricWordIndex = wordIndex;
     if (lyricStyle === "word") {
       stage.textContent = words[wordIndex] || "";
       stage.animate?.([{ opacity: 0, transform: "translateY(7px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 180, easing: "ease-out" });
-    } else buildTimedLyricLine(stage, words, wordIndex);
-    requestAnimationFrame(fitActiveLyricText);
+      requestAnimationFrame(fitActiveLyricText);
+    } else {
+      buildTimedLyricLine(stage, words, wordIndex);
+      // Reveal keeps one fitted size for the whole line while its words appear.
+      // Re-fitting every word caused a large first-word flash on tight panels.
+      if (lyricStyle !== "reveal" || lyricLineChanged) fitActiveLyricText();
+    }
     return;
   }
   if (lineIndex === activeLyricIndex) return;
