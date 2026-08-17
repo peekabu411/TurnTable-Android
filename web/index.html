@@ -233,7 +233,7 @@
                       <span id="lyric-font-size-label">LYRIC SIZE · Scroll</span>
                       <label class="lyric-size-control" for="lyric-font-size">
                         <div class="lyric-size-preview" id="lyric-font-preview" data-style="scroll"><b id="lyric-font-preview-text">Current lyric line</b><output id="lyric-font-size-value" for="lyric-font-size">100%</output></div>
-                        <input id="lyric-font-size" type="range" min="10" max="150" step="5" value="100" aria-label="Lyric font size for the selected lyric style" aria-describedby="lyric-font-size-value">
+                        <input id="lyric-font-size" type="range" min="20" max="100" step="5" value="100" aria-label="Lyric font size for the selected lyric style" aria-describedby="lyric-font-size-value">
                       </label>
                     </div>
                     <div class="appearance-setting">
@@ -357,6 +357,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.11.21)</b><span>Set per-style lyric size to a focused 20-100% range while keeping the immediate preview, fitted lyrics, and Reveal animation stable.</span></li>
             <li><b>ver(A.9.11.20)</b><span>Fixed Reveal at large lyric sizes: the full line is fitted once, then reveals word by word without flashing or collapsing to its first word.</span></li>
             <li><b>ver(A.9.11.19)</b><span>Changed the per-style lyric-size range to 10-150%, while retaining instant local preview and no-clipping lyric fitting.</span></li>
             <li><b>ver(A.9.11.18)</b><span>Set lyric size to 100-300%, applies each adjustment locally without a Spotify refresh, and constrains lyric text to wrap or fit within its panel instead of clipping.</span></li>
