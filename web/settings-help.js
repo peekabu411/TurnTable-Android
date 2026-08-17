@@ -108,7 +108,7 @@
           <span class="preview-copy"><b>Sunday Morning</b><small>Turntable Radio</small></span>
           <span class="preview-lyrics"><small>Feel the rhythm</small><b>all around us</b><small>moving slowly</small></span>
           <span class="preview-progress"><i></i></span>
-          <span class="preview-controls"><i>&#8644;</i><i>&#9664;&#9664;</i><i class="preview-play">&#9654;</i><i>&#9654;&#9654;</i><i>&#8635;</i></span>
+          <span class="preview-controls" aria-hidden="true"><svg class="preview-control" viewBox="0 0 24 24"><path d="M4 7h3l10 10h3M17 7h3v3M20 7l-3 3M4 17h3l3-3"/></svg><svg class="preview-control" viewBox="0 0 24 24"><path d="M6 5v14M18 6 9 12l9 6z"/></svg><svg class="preview-control preview-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><svg class="preview-control" viewBox="0 0 24 24"><path d="M18 5v14M6 6l9 6-9 6z"/></svg><svg class="preview-control" viewBox="0 0 24 24"><path d="M7 7h10M14 4l3 3-3 3M17 17H7M10 20l-3-3 3-3"/></svg><svg class="preview-control preview-queue" viewBox="0 0 24 24"><path d="M9 6h10M9 12h10M9 18h7"/><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/></svg></span>
           <span class="preview-dial"></span><span class="preview-volume-bar"><i></i></span>
         </div>
         <figcaption>${label}</figcaption>

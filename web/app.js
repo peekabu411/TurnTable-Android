@@ -430,7 +430,7 @@ function anchorArtworkToActivePanel() {
   const artStage = document.querySelector(".art-stage");
   const playerView = document.querySelector(".player-view");
   if (!artStage || !playerView) return;
-  const landscapePlayer = window.matchMedia("(orientation: landscape) and (max-height: 500px)").matches && remote.dataset.currentView === "player";
+  const landscapePlayer = remote.dataset.layoutResolved !== "portrait" && innerWidth >= innerHeight && remote.dataset.currentView === "player";
   if (!landscapePlayer) { artStage.style.removeProperty("--art-panel-offset"); return; }
   const anchor = remote.dataset.display === "lyrics" ? $("lyrics-panel") : playerView.querySelector(".track-copy");
   if (!anchor || anchor.getClientRects().length === 0) { artStage.style.removeProperty("--art-panel-offset"); return; }
@@ -720,18 +720,26 @@ function optimisticSettingValue(key, serverValue) {
   }
   return pending.value;
 }
-function resolvedLayoutProfile() {
-  if (layoutProfile !== "auto") return layoutProfile;
-  const width = Math.max(innerWidth, innerHeight);
-  const height = Math.min(innerWidth, innerHeight);
-  if (height <= 430 || width <= 860) return "compact";
-  if (width >= 1180 || height >= 700) return "wide";
+function detectedDeviceClass() {
+  const width = Math.max(1, innerWidth);
+  const height = Math.max(1, innerHeight);
+  if (height > width) return "portrait";
+  const shortSide = Math.min(width, height);
+  const longSide = Math.max(width, height);
+  if (shortSide <= 430 || longSide <= 860) return "compact";
+  if (shortSide >= 650 || longSide >= 1180) return "wide";
   return "standard";
+}
+function resolvedLayoutProfile() {
+  const detected = detectedDeviceClass();
+  if (detected === "portrait") return "portrait";
+  return layoutProfile !== "auto" ? layoutProfile : detected;
 }
 function applyLayoutProfile(next = layoutProfile) {
   layoutProfile = ["auto", "compact", "standard", "wide"].includes(next) ? next : "auto";
   localStorage.setItem("turntable-layout-profile", layoutProfile);
   remote.dataset.layoutProfile = layoutProfile;
+  remote.dataset.deviceClass = detectedDeviceClass();
   const resolved = resolvedLayoutProfile();
   remote.dataset.layoutResolved = resolved;
   document.querySelectorAll("[data-layout-profile-choice]").forEach((button) => {
@@ -743,6 +751,7 @@ function applyLayoutProfile(next = layoutProfile) {
   const status = $("screen-fit-status");
   if (status) status.textContent = layoutProfile === "auto" ? `Auto → ${resolved[0].toUpperCase()}${resolved.slice(1)}` : `Active: ${resolved[0].toUpperCase()}${resolved.slice(1)}`;
   syncAppearanceSliders();
+  requestAnimationFrame(anchorArtworkToActivePanel);
 }
 function applyUIFontScale(value = uiFontScale) {
   uiFontScale = Math.max(90, Math.min(110, Math.round(Number(value) / 5) * 5));
@@ -984,7 +993,7 @@ function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nex
     const active = button.dataset.controlBarBackgroundChoice === controlBarBackground;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
-  });  syncAppearanceSliders();
+  });
 
   if (albumStyle === "vinyl" && previousAlbum !== "vinyl") {
     turntableTrackUri = null;
@@ -1012,6 +1021,8 @@ function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nex
     }
   }
   if (displayStyle === "lyrics" || playerBackgroundStyle === "solid") updateAlbumColor(artwork(playback?.item), playback?.item?.uri);
+  syncAppearanceSliders();
+  requestAnimationFrame(anchorArtworkToActivePanel);
 }
 
 function applyVolumeWeight(nextWeight = volumeWeight) {
@@ -1786,20 +1797,12 @@ $("pair").onclick = async () => {
   try {
     const response = await fetch("/api/pair", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin: $("pin").value }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.error);
-    session = data.session;
-    localStorage.setItem("turntable-session", session);
-    pairing.hidden = true;
-    remote.hidden = false;
-    const hydrated = hydrateClientSnapshot();
-    if (!hydrated && data.snapshot?.playback) {
-      render(data.snapshot);
-      renderQueue(data.snapshot.queue || []);
-      saveClientSnapshot(true);
-    }
-    setConnectionState("syncing", "Paired successfully. Checking the latest Spotify playback.");
-    switchView("player");
-    void startStatusRefreshCycle();
-    scheduleFullscreenPrompt(500);
+    // The browser approval has not returned yet. Starting playback polling here
+    // would see the missing token as an expired session and cancel authorization.
+    session = null;
+    localStorage.removeItem("turntable-session");
+    $("pair-error").textContent = "Finish Spotify approval in the browser. Turntable will reopen automatically.";
+    scheduleSpotifyReturnHelp();
   } catch (error) {
     $("pair-error").textContent = error.message;
   } finally {
@@ -2232,6 +2235,7 @@ applyUIFontScale(uiFontScale);
 setLyricOffset(lyricOffset);
 setTopBarHidden(localStorage.getItem("turntable-topbar-hidden") !== "false");
 if (session) { pairing.hidden = true; remote.hidden = false; hydrateClientSnapshot(); void startStatusRefreshCycle(); scheduleFullscreenPrompt(); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && sessionStorage.getItem(SPOTIFY_AUTH_PENDING_KEY) === "1") setTimeout(showSpotifyReturnHelp, 900); });
 window.addEventListener("resize", () => { applyLayoutProfile(layoutProfile); requestAnimationFrame(anchorArtworkToActivePanel); });
 if ("ResizeObserver" in window) {
   const artworkAnchorObserver = new ResizeObserver(() => requestAnimationFrame(anchorArtworkToActivePanel));

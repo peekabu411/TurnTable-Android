@@ -107,6 +107,9 @@
                 <button id="play" class="play-button" aria-label="Play"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg></button>
                 <button id="next" aria-label="Next track"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 6l9 6-9 6z"/></svg></button>
                 <button id="repeat" class="transport-small" aria-label="Repeat off" data-repeat-state="off"><svg class="transport-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10M14 4l3 3-3 3M17 17H7M10 20l-3-3 3-3"/></svg><b class="repeat-one" aria-hidden="true">1</b></button>
+                <button id="queue-toggle" class="queue-toggle" aria-label="Open playback queue" aria-controls="queue-drawer" aria-expanded="false">
+                  <span class="queue-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+                </button>
               </div>
             </div>
           </section>
@@ -281,9 +284,6 @@
           </section>
         </div>
 
-        <button id="queue-toggle" class="queue-toggle" aria-label="Open playback queue" aria-controls="queue-drawer" aria-expanded="false">
-          <span class="queue-icon" aria-hidden="true"><i></i><i></i><i></i></span>
-        </button>
         <button id="queue-backdrop" class="queue-backdrop" aria-label="Close playback queue" tabindex="-1"></button>
         <aside id="queue-drawer" class="queue-drawer" aria-label="Playback queue" aria-hidden="true">
           <header><div><small>COMING UP</small><h2>Queue</h2></div><button id="queue-close" aria-label="Close playback queue">&#10005;</button></header>
@@ -351,7 +351,7 @@
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
 
-            <li><b>ver(A.9.11)</b><span>Anchored artwork to stable Info and Lyrics panels, kept transport alignment consistent across Android touch layouts, and added the custom TurnTable launcher logo.</span></li>
+            <li><b>ver(A.9.11)</b><span>Added adaptive compact, standard, wide/tablet, and portrait player profiles; hardened Spotify browser-return guidance; aligned Queue with transport; and kept stable artwork anchors and the custom launcher logo.</span></li>
             <li><b>ver(A.9.10)</b><span>Improved Spotify setup and return, added saved local connection management, refined Samsung playback, and tuned the A50 layout, update log, artwork, and volume-control gestures.</span></li>
             <li><b>ver(A.9.09)</b><span>Added immersive Samsung fullscreen, SVG controls, lower polling, and saved Spotify connection management.</span></li>
             <li><b>ver(A.9.08)</b><span>Made the Spotify authorization return durable across Android app recreation.</span></li>

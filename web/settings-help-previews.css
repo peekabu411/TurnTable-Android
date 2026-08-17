@@ -12,7 +12,7 @@
 .settings-help-device .preview-progress{position:absolute;z-index:4;left:43%;right:7%;bottom:28%;height:2px;background:#ffffff38}
 .preview-progress i{position:static;display:block;width:58%;height:100%;background:#fff}
 .settings-help-device .preview-controls{position:absolute;z-index:4;left:41%;right:5%;bottom:7%;height:auto;display:flex;align-items:center;justify-content:space-between;background:none}
-.preview-controls i{position:static;display:block;color:#fff;font-style:normal;font-size:6px;line-height:1;text-shadow:0 1px 3px #000}.preview-controls .preview-play{font-size:8px}
+.preview-controls .preview-control{position:static;display:block;width:10px;height:10px;flex:0 0 auto;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px #000)}.preview-controls .preview-play{width:12px;height:12px;fill:#fff;stroke:none}.preview-controls .preview-queue{width:11px;height:11px;stroke-width:1.8}
 .preview-dial,.preview-volume-bar{display:none}
 .visual-dial::after,.visual-control-bar::after{display:none}
 .visual-vinyl .preview-art{border-radius:50%;outline:5px solid #111;box-shadow:0 0 0 6px #484848,0 5px 12px #000}

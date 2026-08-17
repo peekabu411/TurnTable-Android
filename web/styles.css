@@ -500,7 +500,6 @@
 .transport-icon{width:25px;height:25px;display:block;margin:auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.play-button .transport-icon{width:34px;height:34px;fill:currentColor;stroke:none}.transport .repeat-one{position:absolute;font-size:8px;right:5px;bottom:4px}.transport #repeat{position:relative}
 .spotify-connection-card{display:flex;flex-direction:column;gap:10px;min-height:190px;padding:16px;border:1px solid #2d2d2d;border-radius:14px;background:#131313}.spotify-connection-card>div:first-child small,.spotify-connection-card>div:first-child b{display:block}.spotify-connection-card>div:first-child small{color:var(--green);font-size:9px;letter-spacing:.08em;font-weight:700}.spotify-connection-card>div:first-child b{margin-top:3px;font-size:16px}.spotify-connection-card>p{margin:0;color:#a6a6a6;font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px;letter-spacing:.02em}.spotify-connection-actions{display:flex;gap:8px}.spotify-connection-actions button,.spotify-client-editor button{border:0;border-radius:999px;padding:9px 12px;background:var(--green);color:#07150c;font-weight:800;font-size:11px}.spotify-connection-actions .secondary{background:#272727;color:#eee;border:1px solid #444}.spotify-client-editor{display:grid;gap:7px;padding-top:2px}.spotify-client-editor label{display:grid;gap:4px;color:#888;font-size:9px;font-weight:700;letter-spacing:.08em}.spotify-client-editor input{width:100%;border:1px solid #3d3d3d;border-radius:8px;background:#090909;color:#fff;padding:9px;font-size:12px;letter-spacing:normal}.spotify-connection-footer{display:flex;justify-content:space-between;gap:10px;margin-top:auto}.spotify-connection-footer button{border:0;background:transparent;padding:3px 0;color:#aaa;font-size:10px}.spotify-connection-footer #spotify-forget{color:#ff9292}
 @media (orientation:landscape) and (max-height:500px){.shell{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}.device{width:100%;height:100%;max-height:100%}.screen{padding-right:calc(54px + env(safe-area-inset-right))}.player-view{padding:15px calc(55px + env(safe-area-inset-right)) 15px max(20px,env(safe-area-inset-left))}.player-info{display:flex;min-height:0;flex-direction:column;justify-content:center}.player-info .timeline{margin-top:30px}.player-info .transport{margin-top:12px}.spotify-connection-card{min-height:0;padding:11px;gap:7px}.spotify-connection-card>div:first-child b{font-size:14px}.spotify-connection-actions button,.spotify-client-editor button{padding:8px 10px}.spotify-client-editor input{padding:7px}.spotify-connection-footer{margin-top:2px}}
-/* A50 landscape refinement: preserve cutout margin, lift artwork and bring transport toward the timeline. */
 @media (orientation:landscape) and (max-height:500px){.player-view .art-stage{transform:translateY(-18px)}.device[data-current-view="player"] .transport{bottom:calc(42px + env(safe-area-inset-bottom));padding-top:4px}.device[data-current-view="player"] .timeline{margin-bottom:0}}
 /* A.9.10 final A50 polish: one readable update stream and notch-to-edge player background. */
 .update-log-list{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:none!important;grid-auto-flow:row!important}
@@ -524,3 +523,50 @@
   .device[data-current-view="player"] .transport{transform:translateY(3px)}
   .device[data-current-view="player"] .transport button{position:relative;top:5px}
 }
+/* Adaptive Android player system: profile variables replace phone-specific placement rules. */
+@media (hover:none) and (pointer:coarse){
+  .shell{width:100%;min-height:100dvh;padding:0;background:#050505}
+  .device{--safe-top:env(safe-area-inset-top);--safe-right:env(safe-area-inset-right);--safe-bottom:env(safe-area-inset-bottom);--safe-left:env(safe-area-inset-left);--edge-x:20px;--edge-y:16px;--art-size:clamp(220px,40vh,280px);--dial-size:148px;--transport-height:58px;--lyrics-height:180px;--side-reserve:calc(var(--dial-size) + 18px);width:100%;height:100dvh;min-height:0;max-height:none;border:0;border-radius:0;box-shadow:none}
+  .device[data-layout-resolved="compact"]{--edge-x:16px;--edge-y:12px;--art-size:clamp(176px,40vh,228px);--dial-size:118px;--transport-height:52px;--lyrics-height:150px}
+  .device[data-layout-resolved="standard"]{--art-size:clamp(220px,42vh,290px);--dial-size:148px;--transport-height:58px;--lyrics-height:180px}
+  .device[data-layout-resolved="wide"]{--edge-x:28px;--edge-y:22px;--art-size:clamp(270px,42vh,360px);--dial-size:172px;--transport-height:64px;--lyrics-height:220px}
+  .device[data-control="bar"]{--side-reserve:72px}
+  .device[data-control="dial"]{--side-reserve:calc(var(--dial-size) + 18px)}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device .screen{position:absolute;inset:0;padding:0!important;overflow:hidden}
+  .device .player-view{display:grid!important;grid-template-columns:minmax(0,var(--art-size)) minmax(0,1fr);grid-template-rows:minmax(0,1fr);align-items:center;gap:clamp(18px,3vw,42px);width:100%;height:100%;margin:0!important;padding:calc(var(--safe-top) + var(--edge-y)) calc(var(--safe-right) + var(--side-reserve) + var(--edge-x)) calc(var(--safe-bottom) + var(--transport-height) + 16px) calc(var(--safe-left) + var(--edge-x))!important;background:#080808}
+  .device .player-background{inset:0}
+  .device .player-view .art-stage{grid-column:1;grid-row:1;width:var(--art-size);min-width:0;justify-self:center;transform:translateY(var(--art-panel-offset,0px))!important}
+  .device .player-info{position:relative!important;grid-column:2;grid-row:1;display:flex;min-width:0;min-height:0;flex-direction:column;justify-content:center}
+  .device[data-display="info"] .track-copy{position:relative!important;inset:auto!important;right:auto!important;left:auto!important;width:100%!important;max-width:none!important;margin:0!important;transform:none!important}
+  .device .player-info h2{min-height:1.04em!important;max-height:1.04em!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;line-height:1.04!important}
+  .device[data-display="lyrics"] .lyrics-panel{width:100%!important;max-width:none!important;height:var(--lyrics-height)!important;margin:0!important;padding:clamp(10px,1.8vw,18px)!important}
+  .device[data-display="lyrics"][data-lyrics-background="transparent"] .lyrics-panel{padding-left:0!important;padding-right:0!important}
+  .device .timeline{position:absolute!important;z-index:8;left:calc(var(--safe-left) + var(--edge-x));right:calc(var(--safe-right) + var(--side-reserve) + var(--edge-x));bottom:calc(var(--safe-bottom) + var(--transport-height) + 7px);top:auto!important;width:auto!important;max-width:none!important;height:20px;margin:0!important;transform:none!important}
+  .device .timeline input[type="range"]{width:100%}
+  .device[data-playback-bar="divider"] .timeline{bottom:calc(var(--safe-bottom) + var(--transport-height) + 7px)!important}
+  .device .transport{position:absolute!important;z-index:9;left:calc(var(--safe-left) + var(--edge-x));right:calc(var(--safe-right) + var(--side-reserve) + var(--edge-x));bottom:var(--safe-bottom)!important;height:var(--transport-height);min-height:var(--transport-height);margin:0!important;padding:0!important;transform:none!important;justify-content:space-evenly;border:0!important}
+  .device .transport button{position:relative!important;top:0!important;height:var(--transport-height)!important;transform:none}
+  .device .transport .play-button{width:clamp(48px,7vh,58px);height:clamp(48px,7vh,58px)}
+  .device .dial-rail{position:absolute!important;z-index:10;top:calc(var(--safe-top) + var(--edge-y));right:var(--safe-right)!important;bottom:calc(var(--safe-bottom) + var(--transport-height) + 12px);width:var(--side-reserve)!important;padding:0!important;border:0!important;background:transparent!important;display:flex!important;align-items:center;justify-content:center}
+  .device .dial{width:var(--dial-size)!important;height:var(--dial-size)!important}
+  .device[data-control="bar"] .dial-rail{top:calc(var(--safe-top) + var(--edge-y) + 4px);right:var(--safe-right)!important;width:72px!important}
+  .device[data-control="bar"] .dial{width:52px!important;height:min(100%,292px)!important;max-height:none!important}
+  .device[data-current-view="player"].side-controls-hidden .dial-rail{transform:translate3d(calc(100% + var(--safe-right) + 24px),0,0)!important}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait){
+  .device[data-layout-resolved="portrait"]{--edge-x:18px;--edge-y:14px;--art-size:min(64vw,31dvh,280px);--lyrics-height:clamp(150px,29dvh,220px)}
+  .device[data-layout-resolved="portrait"] .player-view{padding:calc(var(--safe-top) + var(--edge-y)) calc(var(--safe-right) + var(--edge-x)) calc(var(--safe-bottom) + 8px) calc(var(--safe-left) + var(--edge-x))!important;gap:clamp(8px,2dvh,16px)}
+  .device[data-layout-resolved="portrait"] .player-view .art-stage{width:var(--art-size);min-width:0;transform:none!important}
+  .device[data-layout-resolved="portrait"] .player-info{width:100%;min-height:0}
+  .device[data-layout-resolved="portrait"] .player-info h2{min-height:1.04em!important;max-height:1.04em!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .device[data-layout-resolved="portrait"] .lyrics-panel{height:var(--lyrics-height);max-width:none!important}
+  .device[data-layout-resolved="portrait"] .timeline,.device[data-layout-resolved="portrait"] .transport{position:static!important;transform:none!important}
+  .device[data-layout-resolved="portrait"] .transport button{top:0!important}
+  .device[data-layout-resolved="portrait"] .dial-rail{padding:6px calc(var(--safe-right) + 18px) calc(var(--safe-bottom) + 6px) calc(var(--safe-left) + 18px)!important}
+}
+/* Queue is part of the transport row, not a separate floating control. */
+.transport .queue-toggle{position:relative!important;z-index:auto!important;right:auto!important;bottom:auto!important;display:grid!important;flex:0 0 auto;width:44px;height:44px;margin:0;padding:0;border:0!important;border-radius:0!important;background:transparent!important;color:#fff;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transform:none!important}
+.transport .queue-toggle:active{transform:scale(.9)!important}.device.queue-open .transport .queue-toggle{color:var(--green)}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){.device .transport .queue-toggle{height:var(--transport-height)!important}.device .transport .queue-toggle .queue-icon{transform:none}}

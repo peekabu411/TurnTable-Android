@@ -88,3 +88,13 @@ The output is:
 ```
 android\app\build\outputs\apk\debug\app-debug.apk
 ```
+## Troubleshooting: browser does not return to Turntable
+
+After approving Spotify, Android should reopen Turntable automatically. Some Android versions and manufacturer software—such as Oppo/ColorOS, Samsung, Xiaomi, and others—can instead leave Chrome on a blank **Returning to Turntable…** page when supported app links are disabled or verification has not been refreshed.
+
+1. Open **Android Settings → Apps → Turntable → Open by default** (the wording varies by brand).
+2. Enable **Open supported links** / **Open in this app** for Turntable.
+3. If it was already enabled, clear Turntable’s defaults, reopen the app, and try **Connect Spotify** again.
+4. Keep the same HTTPS Redirect URI in the Spotify Developer Dashboard. Do not replace it with a browser URL or Client Secret.
+
+Turntable will show this guidance on the connection screen when it has not received the browser return. The authorization code is protected by PKCE; do not copy or share it from the callback page.

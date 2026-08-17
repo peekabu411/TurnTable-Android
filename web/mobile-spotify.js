@@ -10,6 +10,7 @@
   const VERIFIER_KEY = "turntable-spotify-pkce-verifier";
   const STATE_KEY = "turntable-spotify-pkce-state";
   const SESSION_KEY = "turntable-session";
+  const AUTH_PENDING_KEY = "turntable-spotify-auth-pending";
   const nativeFetch = window.fetch.bind(window);
   let refreshPromise = null;
   let requestCount = 0;
@@ -108,7 +109,13 @@
       code_challenge_method: "S256", code_challenge: await sha256(verifier),
       scope: "user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative"
     });
-    await openSpotifyBrowser(ACCOUNT_URL + "/authorize?" + query);
+    sessionStorage.setItem(AUTH_PENDING_KEY, "1");
+    try {
+      await openSpotifyBrowser(ACCOUNT_URL + "/authorize?" + query);
+    } catch (error) {
+      sessionStorage.removeItem(AUTH_PENDING_KEY);
+      throw error;
+    }
   }
 
   async function finishAuthorization(url) {
@@ -130,7 +137,7 @@
     if (!response.ok || !tokens.access_token) throw new Error(tokens.error_description || "Spotify did not return an access token.");
     saveTokens({ ...tokens, expires_at: Date.now() + Number(tokens.expires_in || 3600) * 1000 });
     localStorage.setItem(SESSION_KEY, "spotify-direct");
-    localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY);
+    localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); sessionStorage.removeItem(AUTH_PENDING_KEY);
   }
 
   function apiError(error) {
@@ -203,7 +210,7 @@
     redirectInProgress = true;
     Promise.resolve(browserPlugin()?.close?.()).catch(() => {}).finally(() => finishAuthorization(String(url)).then(() => location.reload()).catch((error) => {
       localStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY);
+      localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); sessionStorage.removeItem(AUTH_PENDING_KEY);
       location.replace("index.html?spotify_error=" + encodeURIComponent(error.message));
     }));
   };
@@ -215,7 +222,7 @@
     if (String(url || "").startsWith(REDIRECT_URI)) completeRedirect(url);
   }).catch(() => {});
   if (tokenData() && !localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, "spotify-direct");
-  const clearAuthorization = () => { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); };
+  const clearAuthorization = () => { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(VERIFIER_KEY); localStorage.removeItem(STATE_KEY); sessionStorage.removeItem(AUTH_PENDING_KEY); };
   const validClientId = (clientId) => /^[A-Za-z0-9]{20,64}$/.test(String(clientId || ""));
   window.TurntableSpotify = {
     disconnect() { clearAuthorization(); },
