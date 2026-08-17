@@ -670,3 +670,19 @@
   .device[data-current-view="player"][data-playback-bar="default"] .transport{bottom:calc(var(--safe-bottom) + var(--default-transport-inset))!important}
   .device[data-current-view="player"][data-playback-bar="default"] .transport::before{top:calc(-1 * (var(--default-control-band) - var(--default-transport-inset) - var(--transport-height)))!important}
 }
+/* A.9.11.9: one stable control band across info, scroll lyrics, and stage lyrics. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"]{--control-band:clamp(82px,30vh,122px);--control-inset:clamp(48px,14vh,58px)}
+  .device[data-current-view="player"] .player-view.active .art-stage{transform:translateY(-25px)!important}
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-panel{height:calc(var(--lyrics-height) + 16px)!important;transform:translateY(-10px)!important}
+  .device[data-current-view="player"] .timeline{bottom:var(--control-band)!important}
+  .device[data-current-view="player"] .transport{bottom:calc(var(--safe-bottom) + var(--control-inset))!important}
+  .device[data-current-view="player"] .transport::before{top:calc(var(--control-inset) + var(--transport-height) - var(--control-band))!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .timeline>div{display:none!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .timeline>div{display:flex!important}
+  .device[data-current-view="player"] .lyrics-lines p{font-size:calc(14px * var(--ui-font-scale))!important}
+  .device[data-current-view="player"] .lyric-stage-word{font-size:clamp(30px,5.2vw,56px)!important}
+  .device[data-current-view="player"] .lyric-stage-karaoke,.device[data-current-view="player"] .lyric-stage-reveal{font-size:clamp(20px,3.3vw,35px)!important}
+  .device[data-current-view="player"] .lyric-stage-focus .current{font-size:clamp(30px,5.2vw,56px)!important}
+  .device[data-current-view="player"] .lyric-stage-focus .neighbor{font-size:clamp(14px,1.9vw,22px)!important}
+}
