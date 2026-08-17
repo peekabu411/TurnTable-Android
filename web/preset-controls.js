@@ -8,11 +8,18 @@
     controlBarBackground: "transparent", volumeWeight: "heavy",
     layoutProfile: "auto", uiFontScale: 100, lyricOffset: -0.7
   };
+  const BUILT_IN_LIBRARY_VERSION = "A.9.13";
+  const BUILT_IN_PRESETS = [
+    { id: "default", name: "Vinyl · Default", settings: { ...DEFAULT_SETTINGS, album: "vinyl", control: "dial", display: "info", playbackBar: "default" } },
+    { id: "set-1", name: "Square · Divider", settings: { ...DEFAULT_SETTINGS, album: "square", control: "bar", display: "info", playbackBar: "divider", controlBarBackground: "translucent" } },
+    { id: "set-2", name: "Vinyl · Lyrics", settings: { ...DEFAULT_SETTINGS, album: "vinyl", control: "dial", display: "lyrics", lyricsBackground: "solid", lyricStyle: "scroll", playbackBar: "divider" } }
+  ];
   const settingKeys = Object.keys(DEFAULT_SETTINGS);
   const topSelect = document.getElementById("top-preset-select");
   const settingsSelect = document.getElementById("settings-preset-select");
   const saveButton = document.getElementById("preset-save");
   const manageButton = document.getElementById("preset-manage");
+  if (manageButton) manageButton.hidden = true;
   const modal = document.getElementById("preset-modal");
   const modalCard = document.getElementById("preset-modal-card");
   const modalTitle = document.getElementById("preset-modal-title");
@@ -57,15 +64,11 @@
   }
 
   function initialLibrary() {
-    const current = normalizeSettings(currentSettings());
-    return [
-      { id: "default", name: "Default", settings: normalizeSettings(DEFAULT_SETTINGS) },
-      { id: "set-1", name: "Set 1", settings: current },
-      { id: "set-2", name: "Set 2", settings: current }
-    ];
+    return BUILT_IN_PRESETS.map((preset) => ({ ...preset, settings: normalizeSettings(preset.settings) }));
   }
 
   function loadLibrary() {
+    if (localStorage.getItem("turntable-built-in-preset-library") !== BUILT_IN_LIBRARY_VERSION) return initialLibrary();
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (!Array.isArray(parsed) || !parsed.length) return initialLibrary();
@@ -86,6 +89,7 @@
   function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
     localStorage.setItem(ACTIVE_KEY, activeId);
+    localStorage.setItem("turntable-built-in-preset-library", BUILT_IN_LIBRARY_VERSION);
   }
 
   function fillSelect(select) {
