@@ -233,7 +233,7 @@
                       <span id="lyric-font-size-label">LYRIC SIZE · Scroll</span>
                       <label class="lyric-size-control" for="lyric-font-size">
                         <div class="lyric-size-preview" id="lyric-font-preview" data-style="scroll"><b id="lyric-font-preview-text">Current lyric line</b><output id="lyric-font-size-value" for="lyric-font-size">100%</output></div>
-                        <input id="lyric-font-size" type="range" min="50" max="300" step="5" value="100" aria-label="Lyric font size for the selected lyric style" aria-describedby="lyric-font-size-value">
+                        <input id="lyric-font-size" type="range" min="100" max="300" step="5" value="100" aria-label="Lyric font size for the selected lyric style" aria-describedby="lyric-font-size-value">
                       </label>
                     </div>
                     <div class="appearance-setting">
@@ -357,6 +357,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.11.18)</b><span>Set lyric size to 100-300%, applies each adjustment locally without a Spotify refresh, and constrains lyric text to wrap or fit within its panel instead of clipping.</span></li>
             <li><b>ver(A.9.11.17)</b><span>Matched Default lyric progress width to the lyric panel, made Refresh tappable above the expanded dial, and extended per-style lyric sizing to 300% with immediate live application.</span></li>
             <li><b>ver(A.9.11.16)</b><span>Stabilized Auto layout across refreshes, shortened lyric panels at the right edge, slightly reduced four-line scroll lyrics, and raised Default lyrics and progress 15 px.</span></li>
             <li><b>ver(A.9.11.15)</b><span>Fixed Now Playing Refresh for standalone Spotify control, matched non-scroll lyric typography to the LAN reference, and lowered Divider progress and control background another 10 px.</span></li>

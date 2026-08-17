@@ -773,3 +773,9 @@
   .device .preset-bar{position:relative!important;z-index:50!important;pointer-events:auto!important}.device .preset-bar .status-button{position:relative!important;z-index:51!important;pointer-events:auto!important}
   .device[data-current-view="player"][data-playback-bar="default"][data-display="lyrics"] .timeline{width:calc(100% - var(--lyric-right-trim))!important;margin:14px var(--lyric-right-trim) 0 0!important}
 }
+/* A.9.11.18: lyric size applies locally on input and text never clips. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"] .lyrics-panel,.device[data-current-view="player"] .lyrics-lines,.device[data-current-view="player"] .lyric-stage{min-width:0;max-width:100%}
+  .device[data-current-view="player"] .lyrics-lines p,.device[data-current-view="player"] .lyric-stage,.device[data-current-view="player"] .lyric-stage *{overflow-wrap:anywhere!important;word-break:normal!important;hyphens:auto}
+  .device[data-current-view="player"] .lyric-stage{white-space:normal!important;-webkit-line-clamp:unset!important;max-height:none!important;overflow:visible!important}
+}

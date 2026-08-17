@@ -95,7 +95,7 @@ const lyricStyleNames = { scroll: "Scroll", word: "Word", karaoke: "Karaoke", re
 function readLyricFontSizes() {
   try {
     const saved = JSON.parse(localStorage.getItem("turntable-lyric-font-sizes") || "{}");
-    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(50, Math.min(300, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
+    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(100, Math.min(300, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
   } catch { return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, 100])); }
 }
 let lyricFontSizes = readLyricFontSizes();
@@ -664,6 +664,7 @@ function updateActiveLyrics(position) {
       stage.textContent = words[wordIndex] || "";
       stage.animate?.([{ opacity: 0, transform: "translateY(7px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 180, easing: "ease-out" });
     } else buildTimedLyricLine(stage, words, wordIndex);
+    requestAnimationFrame(fitActiveLyricText);
     return;
   }
   if (lineIndex === activeLyricIndex) return;
@@ -1020,19 +1021,38 @@ function syncLyricFontSizeControl() {
   remote.style.setProperty("--lyric-reveal-divider-min", scaled(27, "reveal")); remote.style.setProperty("--lyric-reveal-divider-vw", scaledVw(4.4, "reveal")); remote.style.setProperty("--lyric-reveal-divider-max", scaled(46, "reveal"));
   remote.style.setProperty("--lyric-focus-divider-min", scaled(42, "focus")); remote.style.setProperty("--lyric-focus-divider-vw", scaledVw(7, "focus")); remote.style.setProperty("--lyric-focus-divider-max", scaled(68, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-min", scaled(18, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-vw", scaledVw(2.5, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-max", scaled(29, "focus"));
 }
+function fitActiveLyricText() {
+  const container = $("lyrics-lines");
+  const stage = container?.querySelector(".lyric-stage");
+  if (!container || !stage) return;
+  const targets = lyricStyle === "focus" ? [...stage.querySelectorAll(".current,.neighbor")] : [stage];
+  targets.forEach((node) => node.style.removeProperty("font-size"));
+  const maxHeight = Math.max(1, container.clientHeight - 2);
+  let attempts = 0;
+  while (attempts < 60 && (stage.scrollWidth > container.clientWidth + 1 || stage.scrollHeight > maxHeight + 1)) {
+    targets.forEach((node) => {
+      const currentSize = parseFloat(getComputedStyle(node).fontSize);
+      node.style.setProperty("font-size", `${Math.max(12, currentSize * .95)}px`, "important");
+    });
+    attempts += 1;
+  }
+}
 function applyLyricFontSize(value) {
-  lyricFontSizes[lyricStyle] = Math.max(50, Math.min(300, Math.round(Number(value) / 5) * 5));
+  lyricFontSizes[lyricStyle] = Math.max(100, Math.min(300, Math.round(Number(value) / 5) * 5));
   localStorage.setItem("turntable-lyric-font-sizes", JSON.stringify(lyricFontSizes));
   syncLyricFontSizeControl();
-  if (lyricsLines.length) {
+  if (displayStyle === "lyrics" && lyricsLines.length) {
     renderLyricsLayout();
     updateActiveLyrics(clockPosition());
-    const stage = $("lyrics-lines").querySelector(".lyric-stage");
-    if (stage) {
-      [stage, ...stage.querySelectorAll(".current,.neighbor")].forEach((node) => {
-        node.style.setProperty("font-size", getComputedStyle(node).fontSize, "important");
-      });
-    }
+    // Re-run after the CSS custom properties paint. This is local-only and
+    // never refreshes Spotify playback or makes a network request.
+    requestAnimationFrame(() => {
+      if (displayStyle !== "lyrics" || !lyricsLines.length) return;
+      activeLyricIndex = -1;
+      activeLyricWordIndex = -1;
+      updateActiveLyrics(clockPosition());
+      fitActiveLyricText();
+    });
   }
   requestAnimationFrame(anchorArtworkToActivePanel);
 }
