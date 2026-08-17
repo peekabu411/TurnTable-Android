@@ -20,6 +20,28 @@
   </head>
   <body>
     <main class="shell">
+      <section id="link-setup" class="pairing-card link-setup-card" hidden aria-labelledby="link-setup-title">
+        <div class="pair-brand"><span class="brand-dot"></span><span>Turntable</span></div>
+        <p class="kicker">ONE-TIME ANDROID SETUP</p>
+        <h1 id="link-setup-title">Let links return<br>to Turntable.</h1>
+        <p class="pair-copy">Spotify sign-in needs Android to reopen Turntable when the browser finishes. Enable Turntable for its supported GitHub link before connecting Spotify.</p>
+        <section class="spotify-setup" aria-label="Enable supported links">
+          <div class="spotify-setup-heading"><small>ANDROID SETTINGS</small><strong>Open supported web addresses</strong></div>
+          <ol>
+            <li>Tap <b>Open Turntable link settings</b>.</li>
+            <li>Choose <b>Set as default</b>.</li>
+            <li>Turn on <b>Open supported web addresses</b>.</li>
+            <li>Enable <code>peekabu411.github.io</code>.</li>
+          </ol>
+          <p>This is an Android setting. Turntable cannot enable it for you, but it can open the exact screen.</p>
+        </section>
+        <div class="spotify-setup-actions link-setup-actions">
+          <button id="open-link-settings" type="button">Open Turntable link settings</button>
+          <button id="recheck-link-settings" type="button" class="secondary">I enabled it — Check again</button>
+        </div>
+        <button id="continue-link-setup" type="button" class="link-setup-skip">Continue to Spotify setup</button>
+        <small id="link-setup-error" role="alert"></small>
+      </section>
       <section id="pairing" class="pairing-card">
         <div class="pair-brand"><span class="brand-dot"></span><span>Turntable</span></div>
         <p class="kicker">STANDALONE SPOTIFY REMOTE</p>
@@ -357,6 +379,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.12.1)</b><span>Added a first-launch Android link-verification guide. It checks peekabu411.github.io, opens Turntable's supported-link settings, and continues once enabled.</span></li>
             <li><b>ver(A.9.12)</b><span>Raised the Divider Scroll lyrics panel by 15 px only, and made the top-bar Refresh control icon-only. Other lyric styles, progress, and transport geometry remain unchanged.</span></li>
             <li><b>ver(A.9.11.21)</b><span>Set per-style lyric size to a focused 20-100% range while keeping the immediate preview, fitted lyrics, and Reveal animation stable.</span></li>
             <li><b>ver(A.9.11.20)</b><span>Fixed Reveal at large lyric sizes: the full line is fitted once, then reveals word by word without flashing or collapsing to its first word.</span></li>

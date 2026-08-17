@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+const linkSetup = $("link-setup");
 const pairing = $("pairing");
 const remote = $("remote");
 const message = $("message");
@@ -2353,6 +2354,53 @@ async function finishAlbumSwipe() {
 albumCard.addEventListener("pointerup", finishAlbumSwipe);
 albumCard.addEventListener("pointercancel", () => { artSwipe = null; resetAlbumCard(); });
 
+const APP_LINK_GUIDE_COMPLETED_KEY = "turntable-app-link-guide-completed";
+async function getAppLinkVerification() {
+  const plugin = window.Capacitor?.Plugins?.AppLinkSettings;
+  if (!plugin?.getVerificationStatus) return { supported: false, enabled: true };
+  try { return await plugin.getVerificationStatus(); }
+  catch { return { supported: false, enabled: true }; }
+}
+function startTurntableExperience() {
+  linkSetup.hidden = true;
+  if (session) {
+    pairing.hidden = true;
+    remote.hidden = false;
+    hydrateClientSnapshot();
+    void startStatusRefreshCycle();
+    scheduleFullscreenPrompt();
+  } else {
+    pairing.hidden = false;
+    remote.hidden = true;
+  }
+}
+async function initializeFirstLaunch() {
+  const alreadyCompleted = localStorage.getItem(APP_LINK_GUIDE_COMPLETED_KEY) === "1";
+  const verification = alreadyCompleted ? { enabled: true } : await getAppLinkVerification();
+  if (!alreadyCompleted && verification.supported && !verification.enabled) {
+    linkSetup.hidden = false;
+    pairing.hidden = true;
+    remote.hidden = true;
+    return;
+  }
+  startTurntableExperience();
+}
+async function recheckAppLinkSettings() {
+  const verification = await getAppLinkVerification();
+  if (verification.supported && verification.enabled) {
+    localStorage.setItem(APP_LINK_GUIDE_COMPLETED_KEY, "1");
+    $("link-setup-error").textContent = "Enabled. Continuing to Spotify setup.";
+    setTimeout(startTurntableExperience, 300);
+    return;
+  }
+  $("link-setup-error").textContent = "Android has not enabled peekabu411.github.io yet. Turn it on, then check again.";
+}
+$("open-link-settings").onclick = async () => {
+  try { await window.Capacitor?.Plugins?.AppLinkSettings?.openSettings?.(); }
+  catch { $("link-setup-error").textContent = "Android could not open the link settings. Open Settings > Apps > Turntable > Set as default."; }
+};
+$("recheck-link-settings").onclick = () => { void recheckAppLinkSettings(); };
+$("continue-link-setup").onclick = () => { localStorage.setItem(APP_LINK_GUIDE_COMPLETED_KEY, "1"); startTurntableExperience(); };
 applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground);
 applyBackgroundColorMode(backgroundColorMode, manualBackgroundColor);
 applyVolumeWeight(volumeWeight);
@@ -2360,7 +2408,7 @@ applyLayoutProfile(layoutProfile);
 applyUIFontScale(uiFontScale);
 setLyricOffset(lyricOffset);
 setTopBarHidden(localStorage.getItem("turntable-topbar-hidden") !== "false");
-if (session) { pairing.hidden = true; remote.hidden = false; hydrateClientSnapshot(); void startStatusRefreshCycle(); scheduleFullscreenPrompt(); }
+void initializeFirstLaunch();
 document.addEventListener("visibilitychange", () => { if (!document.hidden && sessionStorage.getItem(SPOTIFY_AUTH_PENDING_KEY) === "1") setTimeout(showSpotifyReturnHelp, 900); });
 window.addEventListener("resize", () => { applyLayoutProfile(layoutProfile); requestAnimationFrame(anchorArtworkToActivePanel); });
 if ("ResizeObserver" in window) {

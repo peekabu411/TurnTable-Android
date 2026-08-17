@@ -14,6 +14,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(SpotifyAuthPlugin.class);
         registerPlugin(LyricsPlugin.class);
+        registerPlugin(AppLinkSettingsPlugin.class);
         super.onCreate(savedInstanceState);
         enableImmersiveMode();
         deliverSpotifyRedirect(getIntent());

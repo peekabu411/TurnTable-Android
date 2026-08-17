@@ -783,3 +783,5 @@
 @media (hover:none) and (pointer:coarse) and (orientation:landscape){
   .device[data-current-view="player"][data-playback-bar="divider"][data-display="lyrics"][data-lyric-style="scroll"] .lyrics-panel{transform:translateY(-40px)!important}
 }
+.link-setup-card{max-width:520px}.link-setup-actions{display:grid!important;grid-template-columns:1fr 1fr}.link-setup-actions button{min-height:44px}.link-setup-skip{display:block;margin:13px auto 0;border:0;background:transparent;color:#9a9a9a;font-size:12px;text-decoration:underline;text-underline-offset:3px}.link-setup-skip:active{color:#fff}.link-setup-card #link-setup-error{margin-top:8px;color:#ffb36b;text-align:center}
+@media(max-width:620px){.link-setup-actions{grid-template-columns:1fr}.link-setup-card .spotify-setup-actions{flex-direction:column}.link-setup-card .spotify-setup-actions button{min-height:42px}}
