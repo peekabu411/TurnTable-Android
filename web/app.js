@@ -482,9 +482,10 @@ function anchorArtworkToActivePanel() {
   artStage.style.setProperty("--art-panel-offset", `${Math.round(Math.max(-90, Math.min(90, offset)))}px`);
 }
 function syncDisplayPresentation() {
-  // Keep the lyrics panel visible during loading or failure so people can see the real status.
-  remote.dataset.display = displayStyle;
-  remote.dataset.lyricsFallback = "false";
+  // Lyrics mode gracefully falls back to the regular track display until usable lyrics arrive.
+  const showLyrics = displayStyle === "lyrics" && lyricsAvailability === "available";
+  remote.dataset.display = showLyrics ? "lyrics" : "info";
+  remote.dataset.lyricsFallback = String(displayStyle === "lyrics" && !showLyrics);
   requestAnimationFrame(anchorArtworkToActivePanel);
 }
 function setLyricsAvailability(nextAvailability) {
