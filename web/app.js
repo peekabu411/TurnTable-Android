@@ -426,10 +426,25 @@ function parseSyncedLyrics(text = "") {
   return parsed.sort((a, b) => a.time - b.time);
 }
 
+function anchorArtworkToActivePanel() {
+  const artStage = document.querySelector(".art-stage");
+  const playerView = document.querySelector(".player-view");
+  if (!artStage || !playerView) return;
+  const landscapePlayer = window.matchMedia("(orientation: landscape) and (max-height: 500px)").matches && remote.dataset.currentView === "player";
+  if (!landscapePlayer) { artStage.style.removeProperty("--art-panel-offset"); return; }
+  const anchor = remote.dataset.display === "lyrics" ? $("lyrics-panel") : playerView.querySelector(".track-copy");
+  if (!anchor || anchor.getClientRects().length === 0) { artStage.style.removeProperty("--art-panel-offset"); return; }
+  artStage.style.setProperty("--art-panel-offset", "0px");
+  const artBounds = artStage.getBoundingClientRect();
+  const anchorBounds = anchor.getBoundingClientRect();
+  const offset = (anchorBounds.top + anchorBounds.height / 2) - (artBounds.top + artBounds.height / 2);
+  artStage.style.setProperty("--art-panel-offset", `${Math.round(Math.max(-90, Math.min(90, offset)))}px`);
+}
 function syncDisplayPresentation() {
   const fallbackToInfo = displayStyle === "lyrics" && lyricsAvailability === "unavailable";
   remote.dataset.display = fallbackToInfo ? "info" : displayStyle;
   remote.dataset.lyricsFallback = String(fallbackToInfo);
+  requestAnimationFrame(anchorArtworkToActivePanel);
 }
 function setLyricsAvailability(nextAvailability) {
   lyricsAvailability = nextAvailability;
@@ -2217,4 +2232,9 @@ applyUIFontScale(uiFontScale);
 setLyricOffset(lyricOffset);
 setTopBarHidden(localStorage.getItem("turntable-topbar-hidden") !== "false");
 if (session) { pairing.hidden = true; remote.hidden = false; hydrateClientSnapshot(); void startStatusRefreshCycle(); scheduleFullscreenPrompt(); }
-window.addEventListener("resize", () => applyLayoutProfile(layoutProfile));
+window.addEventListener("resize", () => { applyLayoutProfile(layoutProfile); requestAnimationFrame(anchorArtworkToActivePanel); });
+if ("ResizeObserver" in window) {
+  const artworkAnchorObserver = new ResizeObserver(() => requestAnimationFrame(anchorArtworkToActivePanel));
+  artworkAnchorObserver.observe(document.querySelector(".track-copy"));
+  artworkAnchorObserver.observe($("lyrics-panel"));
+}
