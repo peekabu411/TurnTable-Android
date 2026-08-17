@@ -633,3 +633,7 @@
   .device[data-current-view="player"][data-control="bar"] .dial-rail{right:var(--dial-edge-offset)!important;width:64px!important}
   .device[data-current-view="player"][data-control="bar"] .dial{width:64px!important}
 }
+/* A.9.11.7: preserve glyph descenders inside the two-line Now Playing title. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"] .player-info h2{line-height:1.12!important;max-height:2.24em!important;padding-bottom:.08em!important;box-sizing:content-box!important}
+}
