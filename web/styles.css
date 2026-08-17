@@ -342,7 +342,7 @@
   .device[data-playback-bar="divider"] .timeline input[type="range"]::-moz-range-track{height:2px;background:#ffffff2d}.device[data-playback-bar="divider"] .timeline input[type="range"]::-moz-range-progress{height:2px;background:var(--green)}
   .device[data-playback-bar="divider"] .timeline>div{display:none}
   .device[data-playback-bar="divider"] .transport{border-top:0;padding-top:5px}
-  .device[data-playback-bar="divider"] .player-info h2{font-size:clamp(34px,5.6vw,52px);line-height:1;max-height:2em;margin-bottom:9px}
+  .device[data-playback-bar="divider"] .player-info h2{font-size:clamp(34px,5.6vw,52px);line-height:1.04;max-height:2.2em;margin-bottom:9px;padding-bottom:.08em}
   .device[data-playback-bar="divider"] .player-info>p:not(.context){font-size:17px}
   .device[data-playback-bar="divider"][data-display="info"] .player-info{padding-bottom:45px}
   .device[data-playback-bar="divider"][data-display="lyrics"] .lyrics-panel{height:196px;max-width:calc(100% - 56px);padding:9px 14px}

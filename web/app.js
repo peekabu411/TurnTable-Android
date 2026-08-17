@@ -1981,13 +1981,7 @@ dialRail.addEventListener("pointerdown", (event) => {
   if (remote.classList.contains("side-controls-hidden") || remote.dataset.currentView !== "player") return;
   sideControlGesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, mode: "hide" };
 }, true);
-dialRail.addEventListener("pointerup", (event) => {
-  if (!sideControlGesture || sideControlGesture.mode !== "hide" || sideControlGesture.pointerId !== event.pointerId) return;
-  const dx = event.clientX - sideControlGesture.x;
-  const dy = event.clientY - sideControlGesture.y;
-  sideControlGesture = null;
-  if (dx > 46 && Math.abs(dx) > Math.abs(dy) * 1.15) setSideControlsHidden(true);
-}, true);
+
 dialRail.addEventListener("pointercancel", () => { if (sideControlGesture?.mode === "hide") sideControlGesture = null; }, true);
 
 remote.addEventListener("pointerdown", (event) => {
@@ -1999,7 +1993,7 @@ remote.addEventListener("pointerdown", (event) => {
   if (!hidden && event.target.closest("button,input,.album-art,.transport,.dial-rail")) return;
   sideControlGesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, mode: hidden ? "show" : "hide" };
 }, true);
-remote.addEventListener("pointerup", (event) => {
+function finishSideControlGesture(event) {
   if (!sideControlGesture || sideControlGesture.pointerId !== event.pointerId) return;
   const mode = sideControlGesture.mode;
   const dx = event.clientX - sideControlGesture.x;
@@ -2010,7 +2004,10 @@ remote.addEventListener("pointerup", (event) => {
     physicalFeedback("press");
     setSideControlsHidden(false);
   }
-}, true);
+}
+// The dial captures its own pointer while adjusting volume. Listen above it so
+// a rightward swipe still reaches the hide gesture for either control style.
+document.addEventListener("pointerup", finishSideControlGesture, true);
 remote.addEventListener("pointercancel", () => { sideControlGesture = null; }, true);
 function setSpotifyEditor(open) {
   $("spotify-client-editor").hidden = !open;
