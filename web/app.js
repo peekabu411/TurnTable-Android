@@ -78,6 +78,7 @@ let vinylTransitionPrepared = false;
 let vinylTransitionDirection = "next";
 let vinylIncomingSpinAnimation = null;
 let requestedNextCover = "";
+const queuedTrackCache = new Map();
 const artworkPreloads = new Map();
 const albumColorCache = new Map();
 const lyricsResultCache = new Map();
@@ -185,6 +186,37 @@ function preloadArtwork(url) {
   artworkPreloads.set(url, ready);
   if (artworkPreloads.size > 18) artworkPreloads.delete(artworkPreloads.keys().next().value);
   return ready;
+}
+function cacheQueueTrack(track) {
+  if (!track?.uri) return track || null;
+  const cached = {
+    ...track,
+    artists: Array.isArray(track.artists) ? track.artists.map((artist) => ({ ...artist })) : [],
+    album: track.album ? { ...track.album, images: Array.isArray(track.album.images) ? track.album.images.map((image) => ({ ...image })) : [] } : null
+  };
+  queuedTrackCache.set(track.uri, cached);
+  if (queuedTrackCache.size > 30) queuedTrackCache.delete(queuedTrackCache.keys().next().value);
+  void preloadArtwork(artwork(cached));
+  return cached;
+}
+function cachedQueueTrack(track) {
+  return queuedTrackCache.get(track?.uri) || cacheQueueTrack(track);
+}
+function primeQueuedTargetDisplay(target) {
+  const track = target?.track || null;
+  if (!track) return;
+  const cover = target.cover || artwork(track);
+  pendingArtworkUri = track.uri || null;
+  pendingArtworkDirection = "next";
+  updateTrackCopy(track, null, false);
+  fadeBackground(cover);
+  void showNextCover(cover);
+  void preloadArtwork(cover).then((ready) => {
+    if (!ready || queuedPlayNextTarget !== target) return;
+    $("cover").src = cover;
+    $("cover").style.display = "block";
+    $("ambient").style.backgroundImage = `url(${JSON.stringify(cover)})`;
+  });
 }
 async function showNextCover(url) {
   requestedNextCover = url || "";
@@ -1092,15 +1124,18 @@ function armQueuedPlayNext(track, index) {
     clearQueuedPlayNextTarget();
     setMessage("Play Next cancelled.");
   } else {
+    const cachedTrack = cachedQueueTrack(track);
     queuedPlayNextTarget = {
-      uri: track.uri,
-      name: track.name || "selected song",
+      uri: cachedTrack.uri,
+      name: cachedTrack.name || "selected song",
+      track: cachedTrack,
+      cover: artwork(cachedTrack),
       index,
       advances: index + 1,
       sourceUri: playback?.item?.uri || null,
       armedAt: Date.now()
     };
-    preloadArtwork(artwork(track));
+    void showNextCover(queuedPlayNextTarget.cover);
     scheduleQueuedPlayNextBoundaryCheck();
     setMessage((track.name || "Selected song") + " will play after " + (index + 1) + " queue advance" + (index ? "s." : "."));
   }
@@ -1119,10 +1154,7 @@ async function advanceToQueuedTarget(incomingUri) {
     let currentUri = incomingUri;
     const remainingSkips = Math.max(0, target.advances - 1);
     if (currentUri !== target.uri && remainingSkips > 0) {
-      pendingArtworkUri = target.uri;
-      pendingArtworkDirection = "next";
-      updateTrackCopy((state?.queue || [])[target.index], null, false);
-      fadeBackground(artwork((state?.queue || [])[target.index]));
+      primeQueuedTargetDisplay(target);
       setMessage("Skipping " + remainingSkips + " time" + (remainingSkips === 1 ? "" : "s") + " to " + target.name + "...");
       await api("/api/player/skip-count", {
         method: "PUT",
@@ -1156,21 +1188,21 @@ function renderQueue(queue = []) {
     const empty = document.createElement("p"); empty.className = "empty"; empty.textContent = "Your Spotify queue is empty."; list.append(empty); return;
   }
   queue.forEach((track, index) => {
-    preloadArtwork(artwork(track));
+    const cachedTrack = cachedQueueTrack(track);
     const row = document.createElement("div"); row.className = "queue-item";
-    const image = document.createElement("img"); image.src = artwork(track); image.alt = "";
+    const image = document.createElement("img"); image.src = artwork(cachedTrack); image.alt = "";
     const copy = document.createElement("div");
     const title = document.createElement("b"); title.textContent = track.name;
     const artist = document.createElement("small"); artist.textContent = artists(track);
     const actions = document.createElement("div"); actions.className = "queue-actions";
     const number = document.createElement("span"); number.className = "queue-number"; number.textContent = String(index + 1).padStart(2, "0");
     const playNext = document.createElement("button"); playNext.type = "button"; playNext.className = "queue-play-next";
-    const selected = queuedPlayNextTarget?.uri === track.uri;
+    const selected = queuedPlayNextTarget?.uri === cachedTrack.uri;
     playNext.textContent = selected ? "Cancel" : "Play next";
     playNext.classList.toggle("active", selected);
     playNext.setAttribute("aria-pressed", String(selected));
     playNext.disabled = queuedPlayNextRunning;
-    playNext.onclick = () => armQueuedPlayNext(track, index);
+    playNext.onclick = () => armQueuedPlayNext(cachedTrack, index);
     actions.append(number, playNext);
     copy.append(title, artist); row.append(image, copy, actions); list.append(row);
   });
