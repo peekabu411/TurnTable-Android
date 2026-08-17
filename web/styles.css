@@ -706,3 +706,10 @@
   /* Divider retains the full-width screen-edge progress treatment. */
   .device[data-current-view="player"][data-playback-bar="divider"] .timeline{position:absolute!important;left:0!important;right:0!important;bottom:var(--control-band)!important;width:auto!important}
 }
+/* A.9.11.11: Default uses a short content seek bar plus an independent full-width transport band. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-playback-bar="default"]{--default-transport-height:clamp(78px,29vh,110px)}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport{left:0!important;right:0!important;bottom:0!important;height:var(--default-transport-height)!important;min-height:var(--default-transport-height)!important;padding:0!important;justify-content:space-evenly!important;border-top:1px solid #ffffff2b!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport::before{top:0!important;bottom:calc(0px - var(--safe-bottom))!important;background:#070707d9!important;-webkit-backdrop-filter:blur(14px) saturate(1.1)!important;backdrop-filter:blur(14px) saturate(1.1)!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport button{height:var(--default-transport-height)!important;top:0!important}
+}
