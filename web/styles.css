@@ -713,3 +713,11 @@
   .device[data-current-view="player"][data-playback-bar="default"] .transport::before{top:0!important;bottom:calc(0px - var(--safe-bottom))!important;background:#070707d9!important;-webkit-backdrop-filter:blur(14px) saturate(1.1)!important;backdrop-filter:blur(14px) saturate(1.1)!important}
   .device[data-current-view="player"][data-playback-bar="default"] .transport button{height:var(--default-transport-height)!important;top:0!important}
 }
+/* A.9.11.12: keep Default compact; Divider shares Default transport spacing. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-playback-bar="default"]{--default-transport-height:clamp(58px,calc(29vh - 20px),90px)}
+  .device[data-current-view="player"][data-playback-bar="divider"] .timeline{bottom:calc(var(--control-band) - 30px)!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport{left:0!important;right:0!important;bottom:calc(var(--safe-bottom) + 6px)!important;box-sizing:border-box!important;padding:0!important;justify-content:space-evenly!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport::before{top:0!important;right:0!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport button{top:0!important}
+}
