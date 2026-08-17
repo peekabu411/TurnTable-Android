@@ -168,7 +168,7 @@
           </section>
 
           <section class="view controls-view" data-panel="settings">
-            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><div class="settings-preset-tools" aria-label="Preset controls"><div class="preset-selector-shell"><select id="settings-preset-select" class="preset-selector" aria-label="Select visual preset"></select></div><button id="preset-save" type="button" disabled>Saved</button><button id="preset-manage" type="button" aria-label="Create or rename presets">&#8943;</button></div><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version A.9.11"><small>REMOTE VERSION</small><b>ver(A.9.11)</b></button></div>
+            <div class="section-heading settings-heading"><p>REMOTE SETTINGS</p><h2>Controls</h2><div class="settings-preset-tools" aria-label="Preset controls"><div class="preset-selector-shell"><select id="settings-preset-select" class="preset-selector" aria-label="Select visual preset"></select></div><button id="preset-save" type="button" disabled>Saved</button><button id="preset-manage" type="button" aria-label="Create or rename presets">&#8943;</button></div><button id="version-indicator" class="version-indicator" type="button" aria-label="Remote version A.9.12"><small>REMOTE VERSION</small><b>ver(A.9.12)</b></button></div>
             <div class="settings-columns">
               <div class="settings-controls">
                 <section class="theme-picker" aria-labelledby="theme-title">
@@ -282,7 +282,10 @@
                         <button data-guide-choice="hidden" aria-label="Hide control hint text"><b>Hide text</b><span>Clean display</span></button>
                       </div>
                     </div>
-                  </section>
+                                      <div class="appearance-setting onboarding-reset-setting">
+                      <span>SETUP</span>
+                      <div><button id="reset-link-setup" type="button" class="secondary">Show link setup again</button><small>Recheck Android supported links before the next Spotify connection.</small></div>
+                    </div>                  </section>
                 </section>
                 <section class="settings-group settings-group-display" aria-labelledby="display-settings-title">
                   <div class="settings-group-heading"><small>DISPLAY</small><strong id="display-settings-title">Fit &amp; readability</strong></div>
@@ -379,6 +382,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.12.2)</b><span>Added Settings → Setup → Show link setup again, plus a complete sharing, install, and troubleshooting guide in the repository.</span></li>
             <li><b>ver(A.9.12.1)</b><span>Added a first-launch Android link-verification guide. It checks peekabu411.github.io, opens Turntable's supported-link settings, and continues once enabled.</span></li>
             <li><b>ver(A.9.12)</b><span>Raised the Divider Scroll lyrics panel by 15 px only, and made the top-bar Refresh control icon-only. Other lyric styles, progress, and transport geometry remain unchanged.</span></li>
             <li><b>ver(A.9.11.21)</b><span>Set per-style lyric size to a focused 20-100% range while keeping the immediate preview, fitted lyrics, and Reveal animation stable.</span></li>

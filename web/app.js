@@ -2401,6 +2401,10 @@ $("open-link-settings").onclick = async () => {
 };
 $("recheck-link-settings").onclick = () => { void recheckAppLinkSettings(); };
 $("continue-link-setup").onclick = () => { localStorage.setItem(APP_LINK_GUIDE_COMPLETED_KEY, "1"); startTurntableExperience(); };
+$("reset-link-setup").onclick = () => {
+  localStorage.removeItem(APP_LINK_GUIDE_COMPLETED_KEY);
+  location.reload();
+};
 applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground);
 applyBackgroundColorMode(backgroundColorMode, manualBackgroundColor);
 applyVolumeWeight(volumeWeight);

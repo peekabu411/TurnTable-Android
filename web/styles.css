@@ -785,3 +785,4 @@
 }
 .link-setup-card{max-width:520px}.link-setup-actions{display:grid!important;grid-template-columns:1fr 1fr}.link-setup-actions button{min-height:44px}.link-setup-skip{display:block;margin:13px auto 0;border:0;background:transparent;color:#9a9a9a;font-size:12px;text-decoration:underline;text-underline-offset:3px}.link-setup-skip:active{color:#fff}.link-setup-card #link-setup-error{margin-top:8px;color:#ffb36b;text-align:center}
 @media(max-width:620px){.link-setup-actions{grid-template-columns:1fr}.link-setup-card .spotify-setup-actions{flex-direction:column}.link-setup-card .spotify-setup-actions button{min-height:42px}}
+.onboarding-reset-setting>div{display:grid;gap:5px}.onboarding-reset-setting small{color:#888;font-size:10px;line-height:1.35}.onboarding-reset-setting button{width:max-content;min-height:34px;padding:7px 10px}
