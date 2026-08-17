@@ -566,6 +566,18 @@
   .device[data-layout-resolved="portrait"] .transport button{top:0!important}
   .device[data-layout-resolved="portrait"] .dial-rail{padding:6px calc(var(--safe-right) + 18px) calc(var(--safe-bottom) + 6px) calc(var(--safe-left) + 18px)!important}
 }
+/* UI text is controlled from the document root and includes Now Playing copy. */
+:root{--ui-font-scale:1}
+.device .context{font-size:calc(11px * var(--ui-font-scale))}
+.device .player-info h2{font-size:clamp(calc(27px * var(--ui-font-scale)),calc(5vw * var(--ui-font-scale)),calc(58px * var(--ui-font-scale)))}
+.device .track-copy>p:not(.context){font-size:calc(18px * var(--ui-font-scale))}
+.device .timeline>div{font-size:calc(11px * var(--ui-font-scale))}
+.device .lyrics-status,.device .lyrics-lines p{font-size:calc(16px * var(--ui-font-scale))}
+@media (orientation:landscape) and (max-height:500px){
+  .device .context{font-size:calc(10px * var(--ui-font-scale))}
+  .device .track-copy>p:not(.context){font-size:calc(15px * var(--ui-font-scale))}
+  .device .timeline>div{font-size:calc(10px * var(--ui-font-scale))}
+}
 /* Landscape player composition: stable content panels and player-only volume control. */
 @media (hover:none) and (pointer:coarse) and (orientation:landscape){
   .device:not([data-current-view="player"]) .dial-rail{display:none!important;visibility:hidden!important;pointer-events:none!important}

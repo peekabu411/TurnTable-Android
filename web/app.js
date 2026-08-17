@@ -58,7 +58,7 @@ let guideText = localStorage.getItem("turntable-guide-text") === "hidden" ? "hid
 let controlBarBackground = ["opaque", "translucent", "transparent"].includes(localStorage.getItem("turntable-control-bar-background")) ? localStorage.getItem("turntable-control-bar-background") : "transparent";
 let volumeWeight = ["light", "medium", "heavy"].includes(localStorage.getItem("turntable-volume-weight")) ? localStorage.getItem("turntable-volume-weight") : "heavy";
 let layoutProfile = ["auto", "compact", "standard", "wide"].includes(localStorage.getItem("turntable-layout-profile")) ? localStorage.getItem("turntable-layout-profile") : "auto";
-let uiFontScale = Math.max(90, Math.min(110, Number(localStorage.getItem("turntable-ui-font-scale")) || 100));
+let uiFontScale = Math.max(85, Math.min(130, Number(localStorage.getItem("turntable-ui-font-scale")) || 100));
 let displayedTrackUri = null;
 let pendingArtworkUri = null;
 let pendingArtworkDirection = null;
@@ -536,6 +536,25 @@ function renderLyrics(result = {}) {
   updateActiveLyrics(clockPosition());
 }
 
+function normalizeLyricsProviderResult(record) {
+  return { found: !!record, instrumental: !!record?.instrumental, syncedLyrics: record?.syncedLyrics || null, plainLyrics: record?.plainLyrics || null };
+}
+async function fetchLyricsFromProvider(track, exactQuery) {
+  // Keep this a CORS-simple request for Android WebView; a custom header can cause a blocked preflight.
+  const exactResponse = await fetch(`https://lrclib.net/api/get?${exactQuery}`);
+  if (exactResponse.ok) return normalizeLyricsProviderResult(await exactResponse.json());
+  if (exactResponse.status !== 404) throw new Error("Lyrics provider unavailable");
+  const searchQuery = new URLSearchParams({
+    track_name: track?.name || "",
+    artist_name: artists(track),
+    duration: String(track?.duration_ms || "")
+  });
+  const searchResponse = await fetch(`https://lrclib.net/api/search?${searchQuery}`);
+  if (!searchResponse.ok) throw new Error("Lyrics provider unavailable");
+  const matches = await searchResponse.json();
+  const bestMatch = Array.isArray(matches) ? matches.find((item) => item?.syncedLyrics || item?.plainLyrics) : null;
+  return normalizeLyricsProviderResult(bestMatch);
+}
 async function loadLyrics(track) {
   const token = ++lyricsRequestToken;
   lyricsTrackUri = track?.uri || null;
@@ -564,13 +583,7 @@ async function loadLyrics(track) {
     try {
       result = await api(`/api/lyrics?${query}`);
     } catch {
-      const response = await fetch(`https://lrclib.net/api/get?${query}`, { headers: { "Lrclib-Client": "Turntable LAN Remote v0.1 (local personal project)" } });
-      if (response.status === 404) result = { found: false, instrumental: false, syncedLyrics: null, plainLyrics: null };
-      else {
-        if (!response.ok) throw new Error("Lyrics provider unavailable");
-        const direct = await response.json();
-        result = { found: true, instrumental: !!direct.instrumental, syncedLyrics: direct.syncedLyrics || null, plainLyrics: direct.plainLyrics || null };
-      }
+      result = await fetchLyricsFromProvider(track, query);
     }
     lyricsResultCache.set(cacheKey, result);
     if (lyricsResultCache.size > 30) lyricsResultCache.delete(lyricsResultCache.keys().next().value);
@@ -786,8 +799,9 @@ function applyLayoutProfile(next = layoutProfile) {
   requestAnimationFrame(anchorArtworkToActivePanel);
 }
 function applyUIFontScale(value = uiFontScale) {
-  uiFontScale = Math.max(90, Math.min(110, Math.round(Number(value) / 5) * 5));
+  uiFontScale = Math.max(85, Math.min(130, Math.round(Number(value) / 5) * 5));
   localStorage.setItem("turntable-ui-font-scale", String(uiFontScale));
+  document.documentElement.style.setProperty("--ui-font-scale", String(uiFontScale / 100));
   remote.style.setProperty("--ui-font-scale", String(uiFontScale / 100));
   if ($("ui-font-size")) $("ui-font-size").value = String(uiFontScale);
   if ($("ui-font-size-value")) $("ui-font-size-value").textContent = `${uiFontScale}%`;
