@@ -95,7 +95,7 @@ const lyricStyleNames = { scroll: "Scroll", word: "Word", karaoke: "Karaoke", re
 function readLyricFontSizes() {
   try {
     const saved = JSON.parse(localStorage.getItem("turntable-lyric-font-sizes") || "{}");
-    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(50, Math.min(200, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
+    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(50, Math.min(300, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
   } catch { return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, 100])); }
 }
 let lyricFontSizes = readLyricFontSizes();
@@ -1006,6 +1006,7 @@ function syncLyricFontSizeControl() {
   if (sizeValue) sizeValue.textContent = `${scale}%`;
   if (sizeLabel) sizeLabel.textContent = `LYRIC SIZE · ${lyricStyleNames[lyricStyle] || "Scroll"}`;
   if (preview) { preview.dataset.style = lyricStyle; preview.style.setProperty("--preview-size", `${Math.round(13 * scale / 100)}px`); }
+  const lyricContainer = $("lyrics-lines");
   if (previewText) previewText.textContent = lyricStyle === "word" ? "Current word" : lyricStyle === "focus" ? "Previous  Current  Next" : lyricStyle === "scroll" ? "Current lyric line" : "Current lyric phrase";
   const scaled = (value, style) => `${Math.round(value * (lyricFontSizes[style] || 100) / 100)}px`;
   const scaledVw = (value, style) => `${Number((value * (lyricFontSizes[style] || 100) / 100).toFixed(2))}vw`;
@@ -1020,11 +1021,22 @@ function syncLyricFontSizeControl() {
   remote.style.setProperty("--lyric-focus-divider-min", scaled(42, "focus")); remote.style.setProperty("--lyric-focus-divider-vw", scaledVw(7, "focus")); remote.style.setProperty("--lyric-focus-divider-max", scaled(68, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-min", scaled(18, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-vw", scaledVw(2.5, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-max", scaled(29, "focus"));
 }
 function applyLyricFontSize(value) {
-  lyricFontSizes[lyricStyle] = Math.max(50, Math.min(200, Math.round(Number(value) / 5) * 5));
+  lyricFontSizes[lyricStyle] = Math.max(50, Math.min(300, Math.round(Number(value) / 5) * 5));
   localStorage.setItem("turntable-lyric-font-sizes", JSON.stringify(lyricFontSizes));
   syncLyricFontSizeControl();
+  if (lyricsLines.length) {
+    renderLyricsLayout();
+    updateActiveLyrics(clockPosition());
+    const stage = $("lyrics-lines").querySelector(".lyric-stage");
+    if (stage) {
+      [stage, ...stage.querySelectorAll(".current,.neighbor")].forEach((node) => {
+        node.style.setProperty("font-size", getComputedStyle(node).fontSize, "important");
+      });
+    }
+  }
   requestAnimationFrame(anchorArtworkToActivePanel);
-}function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
+}
+function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
   const previousAlbum = albumStyle;
   const previousLyricStyle = lyricStyle;
   albumStyle = nextAlbum === "vinyl" ? "vinyl" : "square";
