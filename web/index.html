@@ -92,7 +92,7 @@
               <div class="player-background-shade"></div>
             </div>
             <button id="open-current-spotify" class="spotify-attribution-button" type="button" aria-label="Open current item in Spotify" title="Open in Spotify" hidden>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1ED760"/><path d="M17.52 10.2a.75.75 0 0 1-1.03.25 8.67 8.67 0 0 0-8.98-.57.75.75 0 1 1-.75-1.3 10.17 10.17 0 0 1 10.5.67.75.75 0 0 1 .26 1.03Zm-1.47 2.3a.63.63 0 0 1-.86.21 7.2 7.2 0 0 0-7.49-.47.63.63 0 1 1-.62-1.1 8.46 8.46 0 0 1 8.77.55.63.63 0 0 1 .2.86Zm-1.3 2.18a.5.5 0 0 1-.69.17 5.87 5.87 0 0 0-6.11-.38.5.5 0 1 1-.5-.87 6.87 6.87 0 0 1 7.14.44.5.5 0 0 1 .16.68Z" fill="#000"/></svg>
+              <svg viewBox="0 0 496 512" aria-hidden="true"><path fill="#1ED760" d="M248 8C111.1 8 0 119.1 0 256s111.1 248 248 248 248-111.1 248-248S384.9 8 248 8Zm114.7 365.6c-4.2 0-6.9-1.3-10.7-3.6-62.4-37.6-135-39.2-206.7-24.5-3.9 1-9 2.6-11.9 2.6-9.7 0-15.8-7.7-15.8-15.8 0-10.3 6.1-15.2 13.6-16.8 81.9-18.1 165.6-16.5 237.8 26.8 6.1 3.9 9.7 7.4 9.7 16.5s-7.1 14.8-16.2 14.8Zm30.5-66.6c-5.2 0-8.7-2.3-12.3-4.2-62.5-37-155.5-51.9-238.6-29.4-4.8 1.3-7.4 2.6-11.9 2.6-10.7 0-19.4-8.7-19.4-19.4s5.2-17.8 15.5-20.7c27.8-7.8 56.2-13.6 97.8-13.6 68.7 0 135 17.1 187.7 47.8 8.1 4.8 11.3 11 11.3 19.7-.1 10.8-8.5 19.2-20.1 19.2Zm34.8-77.7c-5.2 0-8.4-1.3-12.9-3.9-71.2-42.5-198.5-52.7-280.9-29.7-3.6 1-8.1 2.6-12.9 2.6-13.2 0-23.3-10.3-23.3-23.6 0-13.6 8.4-21.3 17.4-23.9 35.2-10.3 74.6-15.2 117.5-15.2 73 0 149.5 15.2 205.4 47.8 7.8 4.5 12.9 10.7 12.9 22.6 0 13.6-11 24.6-24.6 24.6Z"/></svg>
             </button>
             <div class="art-stage">
               <div class="ambient" id="ambient"></div>
@@ -386,6 +386,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.12.4)</b><span>Replaced the Spotify attribution mark with the official vector icon, moved it to the safe top-right corner, and set its resting opacity to 50%.</span></li>
             <li><b>ver(A.9.12.3)</b><span>Added a small top-right Spotify attribution button for the current item and a centered Spotify non-affiliation statement in Settings.</span></li>
             <li><b>ver(A.9.12.2)</b><span>Added Settings → Setup → Show link setup again, plus a complete sharing, install, and troubleshooting guide in the repository.</span></li>
             <li><b>ver(A.9.12.1)</b><span>Added a first-launch Android link-verification guide. It checks peekabu411.github.io, opens Turntable's supported-link settings, and continues once enabled.</span></li>
