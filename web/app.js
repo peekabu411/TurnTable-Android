@@ -95,7 +95,7 @@ const lyricStyleNames = { scroll: "Scroll", word: "Word", karaoke: "Karaoke", re
 function readLyricFontSizes() {
   try {
     const saved = JSON.parse(localStorage.getItem("turntable-lyric-font-sizes") || "{}");
-    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(100, Math.min(300, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
+    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(10, Math.min(150, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
   } catch { return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, 100])); }
 }
 let lyricFontSizes = readLyricFontSizes();
@@ -1038,7 +1038,7 @@ function fitActiveLyricText() {
   }
 }
 function applyLyricFontSize(value) {
-  lyricFontSizes[lyricStyle] = Math.max(100, Math.min(300, Math.round(Number(value) / 5) * 5));
+  lyricFontSizes[lyricStyle] = Math.max(10, Math.min(150, Math.round(Number(value) / 5) * 5));
   localStorage.setItem("turntable-lyric-font-sizes", JSON.stringify(lyricFontSizes));
   syncLyricFontSizeControl();
   if (displayStyle === "lyrics" && lyricsLines.length) {
