@@ -595,3 +595,28 @@
 .transport .queue-toggle{position:relative!important;z-index:auto!important;right:auto!important;bottom:auto!important;display:grid!important;flex:0 0 auto;width:44px;height:44px;margin:0;padding:0;border:0!important;border-radius:0!important;background:transparent!important;color:#fff;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transform:none!important}
 .transport .queue-toggle:active{transform:scale(.9)!important}.device.queue-open .transport .queue-toggle{color:var(--green)}
 @media (hover:none) and (pointer:coarse) and (orientation:landscape){.device .transport .queue-toggle{height:var(--transport-height)!important}.device .transport .queue-toggle .queue-icon{transform:none}}
+
+/* A.9.11.5: anchored landscape player; the transport is relative to the screen, never the info panel. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-layout-resolved="compact"]{--dial-edge-offset:-59px;--side-reserve:78px}
+  .device[data-current-view="player"][data-layout-resolved="standard"]{--dial-edge-offset:-74px;--side-reserve:94px}
+  .device[data-current-view="player"][data-layout-resolved="wide"]{--dial-edge-offset:-86px;--side-reserve:106px}
+  .device[data-current-view="player"] .player-view.active{padding-top:0!important;padding-bottom:0!important;align-items:center!important}
+  .device[data-current-view="player"] .player-info{position:static!important;align-self:center!important}
+  .device[data-current-view="player"] .art-stage{align-self:center!important;transform:none!important}
+  .device[data-current-view="player"] .track-copy,.device[data-current-view="player"] .lyrics-panel{align-self:center}
+  .device[data-current-view="player"] .player-info h2{font-size:clamp(30px,5vw,52px)!important}
+  .device[data-current-view="player"] .timeline{position:absolute!important;left:0!important;right:calc(var(--side-reserve) + var(--safe-right))!important;bottom:var(--transport-height)!important;width:auto!important;height:20px!important;margin:0!important;z-index:20!important}
+  .device[data-current-view="player"] .transport{position:absolute!important;left:0!important;right:calc(var(--side-reserve) + var(--safe-right))!important;bottom:var(--safe-bottom)!important;height:var(--transport-height)!important;min-height:var(--transport-height)!important;margin:0!important;padding:0!important;z-index:21!important;justify-content:space-evenly!important}
+  .device[data-current-view="player"] .dial-rail{right:var(--dial-edge-offset)!important;width:var(--dial-size)!important;z-index:22!important}
+  .device[data-current-view="player"][data-control="bar"]{--side-reserve:44px;--dial-edge-offset:-26px}
+  .device[data-current-view="player"][data-control="bar"] .dial-rail{right:var(--dial-edge-offset)!important;width:52px!important}
+  .device[data-current-view="player"][data-control="bar"] .dial{width:52px!important}
+}
+/* The UI Text preference must be visible throughout Settings, not only in navigation. */
+.controls-view .theme-picker>div:first-child strong{font-size:calc(17px * var(--ui-font-scale))!important}
+.controls-view .theme-picker small,.controls-view .settings-group-heading small{font-size:calc(10px * var(--ui-font-scale))!important}
+.controls-view .appearance-setting>span{font-size:calc(10px * var(--ui-font-scale))!important}
+.controls-view .theme-options button b{font-size:calc(13px * var(--ui-font-scale))!important}
+.controls-view .settings-group-heading strong{font-size:calc(12px * var(--ui-font-scale))!important}
+.controls-view .hint,.controls-view .pair-another,.controls-view .spotify-connection-card{font-size:calc(12px * var(--ui-font-scale))}

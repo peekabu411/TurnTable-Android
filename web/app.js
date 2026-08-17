@@ -473,9 +473,9 @@ function anchorArtworkToActivePanel() {
   artStage.style.setProperty("--art-panel-offset", `${Math.round(Math.max(-90, Math.min(90, offset)))}px`);
 }
 function syncDisplayPresentation() {
-  const fallbackToInfo = displayStyle === "lyrics" && lyricsAvailability === "unavailable";
-  remote.dataset.display = fallbackToInfo ? "info" : displayStyle;
-  remote.dataset.lyricsFallback = String(fallbackToInfo);
+  // Keep the lyrics panel visible during loading or failure so people can see the real status.
+  remote.dataset.display = displayStyle;
+  remote.dataset.lyricsFallback = "false";
   requestAnimationFrame(anchorArtworkToActivePanel);
 }
 function setLyricsAvailability(nextAvailability) {
