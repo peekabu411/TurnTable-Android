@@ -728,3 +728,12 @@
   .device[data-current-view="player"][data-playback-bar="divider"] .transport::before{top:10px!important}
   .device[data-current-view="player"][data-playback-bar="divider"] .transport button{top:-5px!important}
 }
+/* A.9.11.14: larger, four-line lyric presentation based on the landscape reference. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-panel{height:clamp(190px,36vh,320px)!important;transform:translateY(-25px)!important}
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-lines:not(.lyric-stage-mode){height:calc(4.84em + 20px)!important}
+  .device[data-current-view="player"][data-display="lyrics"] .lyrics-lines:not(.lyric-stage-mode) p{line-height:1.21!important;padding:3px 0!important}
+  .device[data-current-view="player"] .lyrics-lines p{font-size:calc(20px * var(--ui-font-scale))!important}
+  .device[data-current-view="player"] .lyric-stage{-webkit-line-clamp:4!important;max-height:4.6em!important}
+  .device[data-current-view="player"][data-playback-bar="default"][data-display="lyrics"] .timeline{transform:translateY(-15px)!important}
+}
