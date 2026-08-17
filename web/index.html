@@ -229,6 +229,13 @@
                         <button data-lyric-style-choice="focus"><b>Focus</b><span>Center word</span></button>
                       </div>
                     </div>
+                    <div class="appearance-setting lyric-size-setting">
+                      <span id="lyric-font-size-label">LYRIC SIZE · Scroll</span>
+                      <label class="lyric-size-control" for="lyric-font-size">
+                        <div class="lyric-size-preview" id="lyric-font-preview" data-style="scroll"><b id="lyric-font-preview-text">Current lyric line</b><output id="lyric-font-size-value" for="lyric-font-size">100%</output></div>
+                        <input id="lyric-font-size" type="range" min="50" max="200" step="5" value="100" aria-label="Lyric font size for the selected lyric style" aria-describedby="lyric-font-size-value">
+                      </label>
+                    </div>
                     <div class="appearance-setting">
                       <span>LYRIC BG</span>
                       <div class="theme-options">
@@ -350,6 +357,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.11.16)</b><span>Stabilized Auto layout across refreshes, shortened lyric panels at the right edge, slightly reduced four-line scroll lyrics, and raised Default lyrics and progress 15 px.</span></li>
             <li><b>ver(A.9.11.15)</b><span>Fixed Now Playing Refresh for standalone Spotify control, matched non-scroll lyric typography to the LAN reference, and lowered Divider progress and control background another 10 px.</span></li>
             <li><b>ver(A.9.11.14)</b><span>Expanded the lyric panel, enlarged lyric text, supports up to four visible lyric lines where space allows, and lifted the lyrics panel and Default progress together by 15 px.</span></li>
             <li><b>ver(A.9.11.13)</b><span>Made the Default transport 15 px shorter again, moved Divider progress and background 10 px lower, and raised Divider buttons 5 px within their band.</span></li>

@@ -91,6 +91,14 @@ let sideControlGesture = null;
 let activeLyricIndex = -1;
 let activeLyricWordIndex = -1;
 let lyricStyle = localStorage.getItem("turntable-lyric-style") || "scroll";
+const lyricStyleNames = { scroll: "Scroll", word: "Word", karaoke: "Karaoke", reveal: "Reveal", focus: "Focus" };
+function readLyricFontSizes() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("turntable-lyric-font-sizes") || "{}");
+    return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, Math.max(50, Math.min(200, Math.round((Number(saved[style]) || 100) / 5) * 5))]));
+  } catch { return Object.fromEntries(Object.keys(lyricStyleNames).map((style) => [style, 100])); }
+}
+let lyricFontSizes = readLyricFontSizes();
 const storedLyricOffset = localStorage.getItem("turntable-lyric-offset");
 const storedLyricOffsetNumber = Number(storedLyricOffset);
 const migrateLegacyZeroOffset = localStorage.getItem("turntable-lyric-offset-default-v2") !== "applied" && storedLyricOffsetNumber === 0;
@@ -786,16 +794,26 @@ function detectedDeviceClass() {
   if (shortSide >= 650 || longSide >= 1180) return "wide";
   return "standard";
 }
+function autoLandscapeProfileKey() {
+  return `turntable-auto-landscape-profile:${screen.width}x${screen.height}`;
+}
 function resolvedLayoutProfile() {
   const detected = detectedDeviceClass();
   if (detected === "portrait") return "portrait";
-  return layoutProfile !== "auto" ? layoutProfile : detected;
+  if (layoutProfile !== "auto") return layoutProfile;
+  const stable = sessionStorage.getItem(autoLandscapeProfileKey());
+  return ["compact", "standard", "wide"].includes(stable) ? stable : detected;
 }
 function applyLayoutProfile(next = layoutProfile) {
   layoutProfile = ["auto", "compact", "standard", "wide"].includes(next) ? next : "auto";
+  const detected = detectedDeviceClass();
+  if (layoutProfile === "auto" && detected !== "portrait") {
+    const key = autoLandscapeProfileKey();
+    if (!["compact", "standard", "wide"].includes(sessionStorage.getItem(key))) sessionStorage.setItem(key, detected);
+  }
   localStorage.setItem("turntable-layout-profile", layoutProfile);
   remote.dataset.layoutProfile = layoutProfile;
-  remote.dataset.deviceClass = detectedDeviceClass();
+  remote.dataset.deviceClass = detected;
   const resolved = resolvedLayoutProfile();
   remote.dataset.layoutResolved = resolved;
   document.querySelectorAll("[data-layout-profile-choice]").forEach((button) => {
@@ -977,7 +995,36 @@ function applyBackgroundColorMode(nextMode = backgroundColorMode, nextColor = ma
   const picker = $("background-color-picker");
   if (picker) picker.value = manualBackgroundColor;
 }
-function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
+function syncLyricFontSizeControl() {
+  const scale = lyricFontSizes[lyricStyle] || 100;
+  const sizeInput = $("lyric-font-size");
+  const sizeValue = $("lyric-font-size-value");
+  const sizeLabel = $("lyric-font-size-label");
+  const preview = $("lyric-font-preview");
+  const previewText = $("lyric-font-preview-text");
+  if (sizeInput) sizeInput.value = String(scale);
+  if (sizeValue) sizeValue.textContent = `${scale}%`;
+  if (sizeLabel) sizeLabel.textContent = `LYRIC SIZE · ${lyricStyleNames[lyricStyle] || "Scroll"}`;
+  if (preview) { preview.dataset.style = lyricStyle; preview.style.setProperty("--preview-size", `${Math.round(13 * scale / 100)}px`); }
+  if (previewText) previewText.textContent = lyricStyle === "word" ? "Current word" : lyricStyle === "focus" ? "Previous  Current  Next" : lyricStyle === "scroll" ? "Current lyric line" : "Current lyric phrase";
+  const scaled = (value, style) => `${Math.round(value * (lyricFontSizes[style] || 100) / 100)}px`;
+  const scaledVw = (value, style) => `${Number((value * (lyricFontSizes[style] || 100) / 100).toFixed(2))}vw`;
+  remote.style.setProperty("--lyric-scroll-size", scaled(20, "scroll"));
+  remote.style.setProperty("--lyric-word-min", scaled(34, "word")); remote.style.setProperty("--lyric-word-vw", scaledVw(6, "word")); remote.style.setProperty("--lyric-word-max", scaled(64, "word"));
+  remote.style.setProperty("--lyric-karaoke-min", scaled(22, "karaoke")); remote.style.setProperty("--lyric-karaoke-vw", scaledVw(3.7, "karaoke")); remote.style.setProperty("--lyric-karaoke-max", scaled(39, "karaoke"));
+  remote.style.setProperty("--lyric-reveal-min", scaled(22, "reveal")); remote.style.setProperty("--lyric-reveal-vw", scaledVw(3.7, "reveal")); remote.style.setProperty("--lyric-reveal-max", scaled(39, "reveal"));
+  remote.style.setProperty("--lyric-focus-min", scaled(34, "focus")); remote.style.setProperty("--lyric-focus-vw", scaledVw(6, "focus")); remote.style.setProperty("--lyric-focus-max", scaled(64, "focus")); remote.style.setProperty("--lyric-focus-neighbor-min", scaled(15, "focus")); remote.style.setProperty("--lyric-focus-neighbor-vw", scaledVw(2, "focus")); remote.style.setProperty("--lyric-focus-neighbor-max", scaled(24, "focus"));
+  remote.style.setProperty("--lyric-word-divider-min", scaled(42, "word")); remote.style.setProperty("--lyric-word-divider-vw", scaledVw(7, "word")); remote.style.setProperty("--lyric-word-divider-max", scaled(68, "word"));
+  remote.style.setProperty("--lyric-karaoke-divider-min", scaled(27, "karaoke")); remote.style.setProperty("--lyric-karaoke-divider-vw", scaledVw(4.4, "karaoke")); remote.style.setProperty("--lyric-karaoke-divider-max", scaled(46, "karaoke"));
+  remote.style.setProperty("--lyric-reveal-divider-min", scaled(27, "reveal")); remote.style.setProperty("--lyric-reveal-divider-vw", scaledVw(4.4, "reveal")); remote.style.setProperty("--lyric-reveal-divider-max", scaled(46, "reveal"));
+  remote.style.setProperty("--lyric-focus-divider-min", scaled(42, "focus")); remote.style.setProperty("--lyric-focus-divider-vw", scaledVw(7, "focus")); remote.style.setProperty("--lyric-focus-divider-max", scaled(68, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-min", scaled(18, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-vw", scaledVw(2.5, "focus")); remote.style.setProperty("--lyric-focus-neighbor-divider-max", scaled(29, "focus"));
+}
+function applyLyricFontSize(value) {
+  lyricFontSizes[lyricStyle] = Math.max(50, Math.min(200, Math.round(Number(value) / 5) * 5));
+  localStorage.setItem("turntable-lyric-font-sizes", JSON.stringify(lyricFontSizes));
+  syncLyricFontSizeControl();
+  requestAnimationFrame(anchorArtworkToActivePanel);
+}function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nextDisplay = displayStyle, nextLyricsBackground = lyricsBackground, nextPlayerBackground = playerBackgroundStyle, nextLyricStyle = lyricStyle, nextPlaybackBarStyle = playbackBarStyle, nextGuideText = guideText, nextControlBarBackground = controlBarBackground) {
   const previousAlbum = albumStyle;
   const previousLyricStyle = lyricStyle;
   albumStyle = nextAlbum === "vinyl" ? "vinyl" : "square";
@@ -995,6 +1042,7 @@ function applyAppearance(nextAlbum = albumStyle, nextControl = controlStyle, nex
   remote.dataset.lyricsBackground = lyricsBackground;
   remote.dataset.playerBackground = playerBackgroundStyle;
   remote.dataset.lyricStyle = lyricStyle;
+  syncLyricFontSizeControl();
   remote.dataset.playbackBar = playbackBarStyle;
   remote.dataset.guides = guideText;
   remote.dataset.controlBarBackground = controlBarBackground;
@@ -1967,7 +2015,8 @@ document.querySelectorAll("[data-background-color-mode]").forEach((button) => {
 $("background-color-picker").oninput = (event) => applyBackgroundColorMode("manual", event.target.value);
 document.querySelectorAll("[data-lyric-style-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground, playerBackgroundStyle, button.dataset.lyricStyleChoice); };
-});document.querySelectorAll("[data-playback-bar-choice]").forEach((button) => {
+});$("lyric-font-size").oninput = (event) => applyLyricFontSize(event.target.value);
+document.querySelectorAll("[data-playback-bar-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground, playerBackgroundStyle, lyricStyle, button.dataset.playbackBarChoice); };
 });document.querySelectorAll("[data-guide-choice]").forEach((button) => {
   button.onclick = () => { physicalFeedback("press"); applyAppearance(albumStyle, controlStyle, displayStyle, lyricsBackground, playerBackgroundStyle, lyricStyle, playbackBarStyle, button.dataset.guideChoice); };
