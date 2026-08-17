@@ -325,7 +325,7 @@
 .device[data-control="bar"] .bar-button-label{top:18px;color:#8d8d8d;font-size:5px;letter-spacing:.18em;transform:translateX(-50%) translateY(25px)}
 /* Move the vertical Bar control closer to the right edge. */
 @media (orientation:landscape) and (max-height:500px) and (max-width:1200px){
-  .device[data-control="bar"] .dial-rail{right:max(-8px,calc(env(safe-area-inset-right) - 10px))}
+  .device[data-control="bar"] .dial-rail{right:max(2px,env(safe-area-inset-right))}
   .device[data-control="bar"] .transport{padding-right:calc(62px + env(safe-area-inset-right))}
 }
 /* Playback line can replace the transport divider. */
