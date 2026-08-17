@@ -637,3 +637,36 @@
 @media (hover:none) and (pointer:coarse) and (orientation:landscape){
   .device[data-current-view="player"] .player-info h2{line-height:1.12!important;max-height:2.24em!important;padding-bottom:.08em!important;box-sizing:content-box!important}
 }
+/* A.9.11.8: restore separate playback modes and make Settings text scale as a complete interface. */
+.controls-view .settings-columns .theme-picker-heading small{font-size:calc(11px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .theme-picker-heading strong{font-size:calc(18px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .settings-group-heading small{font-size:calc(11px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .settings-group-heading strong{font-size:calc(14px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .appearance-setting>span{font-size:calc(11px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .appearance-setting label,.controls-view .settings-columns .appearance-setting p,.controls-view .settings-columns .appearance-setting small{font-size:calc(12px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .theme-options button b,.controls-view .settings-columns button,.controls-view .settings-columns select,.controls-view .settings-columns input{font-size:calc(13px * var(--ui-font-scale))!important}
+.controls-view .settings-columns .hint,.controls-view .settings-columns .pair-another,.controls-view .settings-columns .spotify-connection-card{font-size:calc(13px * var(--ui-font-scale))!important}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  /* Lyrics own the central panel; no song title is rendered above them. */
+  .device[data-current-view="player"][data-display="lyrics"] .track-copy{display:none!important}
+
+  /* Dial remains large and exactly half beyond the right edge. */
+  .device[data-current-view="player"][data-control="dial"]{--dial-size:208px;--side-reserve:104px;--dial-edge-offset:-104px}
+  .device[data-current-view="player"][data-control="dial"] .dial-rail{width:208px!important;right:-104px!important}
+  .device[data-current-view="player"][data-control="dial"] .dial{width:208px!important;height:208px!important}
+
+  /* The vertical slider is fully usable, just inset from the right edge. */
+  .device[data-current-view="player"][data-control="bar"]{--side-reserve:66px;--dial-edge-offset:10px}
+  .device[data-current-view="player"][data-control="bar"] .dial-rail{width:58px!important;right:calc(var(--safe-right) + 10px)!important}
+  .device[data-current-view="player"][data-control="bar"] .dial{width:58px!important}
+
+  /* Divider is the compact bottom-edge style. Default is the taller original control band. */
+  .device[data-current-view="player"][data-playback-bar="divider"] .timeline{bottom:var(--transport-height)!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport{bottom:calc(var(--safe-bottom) + 6px)!important}
+  .device[data-current-view="player"][data-playback-bar="divider"] .transport::before{top:-30px!important}
+
+  .device[data-current-view="player"][data-playback-bar="default"]{--default-control-band:clamp(82px,30vh,122px);--default-transport-inset:clamp(48px,14vh,58px)}
+  .device[data-current-view="player"][data-playback-bar="default"] .timeline{bottom:var(--default-control-band)!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport{bottom:calc(var(--safe-bottom) + var(--default-transport-inset))!important}
+  .device[data-current-view="player"][data-playback-bar="default"] .transport::before{top:calc(-1 * (var(--default-control-band) - var(--default-transport-inset) - var(--transport-height)))!important}
+}
