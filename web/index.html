@@ -57,7 +57,7 @@
           <button class="preset" data-view="playlists"><span>Playlists</span></button>
           <button class="preset" data-view="devices"><span>Devices</span></button>
           <button class="preset" data-view="settings"><span>Settings</span></button>
-          <button id="refresh" class="status-button" aria-label="Refresh Spotify status"><span class="refresh-icon" aria-hidden="true">&#8635;</span><span>REFRESH</span></button>
+          <button id="refresh" class="status-button" aria-label="Refresh Spotify status"><span class="refresh-icon" aria-hidden="true">&#8635;</span></button>
           <span id="connection-dot" class="connection-indicator waiting" role="status" aria-label="Connection status: waiting" title="Waiting for the PC"></span>
         </nav>
         <button id="bar-handle" class="bar-handle" aria-label="Show quick views"><span></span></button>
@@ -357,6 +357,7 @@
           <div class="update-log-tabs" role="tablist" aria-label="Update and diagnostics views"><button id="updates-tab" class="active" type="button" role="tab" aria-selected="true" aria-controls="updates-panel">Updates</button><button id="diagnostics-tab" type="button" role="tab" aria-selected="false" aria-controls="diagnostics-panel">Live diagnostics</button></div>
           <div id="updates-panel" class="update-log-panel" role="tabpanel" aria-labelledby="updates-tab">
           <ol class="update-log-list">
+            <li><b>ver(A.9.12)</b><span>Raised the Divider Scroll lyrics panel by 15 px only, and made the top-bar Refresh control icon-only. Other lyric styles, progress, and transport geometry remain unchanged.</span></li>
             <li><b>ver(A.9.11.21)</b><span>Set per-style lyric size to a focused 20-100% range while keeping the immediate preview, fitted lyrics, and Reveal animation stable.</span></li>
             <li><b>ver(A.9.11.20)</b><span>Fixed Reveal at large lyric sizes: the full line is fitted once, then reveals word by word without flashing or collapsing to its first word.</span></li>
             <li><b>ver(A.9.11.19)</b><span>Changed the per-style lyric-size range to 10-150%, while retaining instant local preview and no-clipping lyric fitting.</span></li>

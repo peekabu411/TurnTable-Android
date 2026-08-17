@@ -779,3 +779,7 @@
   .device[data-current-view="player"] .lyrics-lines p,.device[data-current-view="player"] .lyric-stage,.device[data-current-view="player"] .lyric-stage *{overflow-wrap:anywhere!important;word-break:normal!important;hyphens:auto}
   .device[data-current-view="player"] .lyric-stage{white-space:normal!important;-webkit-line-clamp:unset!important;max-height:none!important;overflow:visible!important}
 }
+/* A.9.12: lift only Divider Scroll lyrics; other lyric styles retain their geometry. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .device[data-current-view="player"][data-playback-bar="divider"][data-display="lyrics"][data-lyric-style="scroll"] .lyrics-panel{transform:translateY(-40px)!important}
+}
