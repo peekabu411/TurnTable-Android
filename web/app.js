@@ -26,6 +26,25 @@ let barGesture = null;
 let pairingInfo = null;
 let playlistsLoaded = false;
 let playlistsLoading = false;
+let playlistItems = [];
+const PLAYLIST_ORGANIZATION_KEY = "turntable-playlist-organization-v1";
+function readPlaylistOrganization() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PLAYLIST_ORGANIZATION_KEY) || "{}");
+    return {
+      pinned: saved?.pinned && typeof saved.pinned === "object" ? saved.pinned : {},
+      hidden: saved?.hidden && typeof saved.hidden === "object" ? saved.hidden : {},
+      sort: ["pinned", "name", "tracks"].includes(saved?.sort) ? saved.sort : "pinned",
+      showHidden: false,
+      organizing: false
+    };
+  } catch { return { pinned: {}, hidden: {}, sort: "pinned", showHidden: false, organizing: false }; }
+}
+let playlistOrganization = readPlaylistOrganization();
+function savePlaylistOrganization() {
+  const { pinned, hidden, sort } = playlistOrganization;
+  localStorage.setItem(PLAYLIST_ORGANIZATION_KEY, JSON.stringify({ pinned, hidden, sort }));
+}
 let devicesLoaded = false;
 let devicesLoading = false;
 let devicesLastRefreshAt = 0;
@@ -1353,10 +1372,37 @@ async function loadQueue(force = false) {
     }
   }
 }
-function renderPlaylists(playlists = []) {
+function playlistKey(playlist) { return playlist?.uri || playlist?.id || playlist?.name || ""; }
+function orderedPlaylists(playlists) {
+  const visible = playlists.filter((playlist) => playlistOrganization.showHidden || !playlistOrganization.hidden[playlistKey(playlist)]);
+  return visible.sort((left, right) => {
+    const leftKey = playlistKey(left); const rightKey = playlistKey(right);
+    if (playlistOrganization.sort === "pinned") {
+      const pinnedDifference = Number(!!playlistOrganization.pinned[rightKey]) - Number(!!playlistOrganization.pinned[leftKey]);
+      if (pinnedDifference) return pinnedDifference;
+    }
+    if (playlistOrganization.sort === "tracks") {
+      const trackDifference = Number(right.tracks || 0) - Number(left.tracks || 0);
+      if (trackDifference) return trackDifference;
+    }
+    return String(left.name || "").localeCompare(String(right.name || ""), undefined, { sensitivity: "base" });
+  });
+}
+function syncPlaylistOrganizationControls() {
+  const sort = $("playlist-sort");
+  const hidden = $("playlist-hidden-toggle");
+  const organize = $("playlist-organize-toggle");
+  if (sort) sort.value = playlistOrganization.sort;
+  const hiddenCount = Object.keys(playlistOrganization.hidden).filter((key) => playlistOrganization.hidden[key]).length;
+  if (hidden) hidden.textContent = playlistOrganization.showHidden ? "Hide hidden" : `Hidden (${hiddenCount})`;
+  if (organize) { organize.textContent = playlistOrganization.organizing ? "Done" : "Organize"; organize.setAttribute("aria-pressed", String(playlistOrganization.organizing)); }
+  $("playlist-grid")?.classList.toggle("organizing", playlistOrganization.organizing);
+}
+function renderPlaylists(playlists = playlistItems) {
   const grid = $("playlist-grid");
   grid.replaceChildren();
   grid.removeAttribute("aria-busy");
+  syncPlaylistOrganizationControls();
   if (!playlists.length) {
     const empty = document.createElement("p");
     empty.className = "empty";
@@ -1364,10 +1410,21 @@ function renderPlaylists(playlists = []) {
     grid.append(empty);
     return;
   }
-  playlists.forEach((playlist) => {
+  const ordered = orderedPlaylists([...playlists]);
+  if (!ordered.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty";
+    empty.textContent = "All playlists are hidden in Turntable. Use Hidden to show them again.";
+    grid.append(empty);
+    return;
+  }
+  ordered.forEach((playlist) => {
+    const key = playlistKey(playlist);
+    const card = document.createElement("article");
+    card.className = `playlist-card${playlistOrganization.pinned[key] ? " pinned" : ""}${playlistOrganization.hidden[key] ? " hidden-playlist" : ""}`;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "playlist-card";
+    button.className = "playlist-play";
     button.setAttribute("aria-label", `Play ${playlist.name}`);
     const cover = document.createElement("span");
     cover.className = "playlist-cover";
@@ -1389,10 +1446,24 @@ function renderPlaylists(playlists = []) {
     detail.textContent = Number.isFinite(playlist.tracks) ? `${playlist.tracks} tracks` : playlist.owner;
     button.append(cover, name, detail);
     button.onclick = () => playPlaylist(playlist, button);
-    grid.append(button);
+    card.append(button);
+    const actions = document.createElement("div");
+    actions.className = "playlist-organize-actions";
+    const pin = document.createElement("button");
+    pin.type = "button";
+    pin.textContent = playlistOrganization.pinned[key] ? "Unpin" : "Pin";
+    pin.setAttribute("aria-label", `${playlistOrganization.pinned[key] ? "Unpin" : "Pin"} ${playlist.name} in Turntable only`);
+    pin.onclick = () => { if (playlistOrganization.pinned[key]) delete playlistOrganization.pinned[key]; else playlistOrganization.pinned[key] = true; savePlaylistOrganization(); renderPlaylists(); };
+    const hide = document.createElement("button");
+    hide.type = "button";
+    hide.textContent = playlistOrganization.hidden[key] ? "Show" : "Hide";
+    hide.setAttribute("aria-label", `${playlistOrganization.hidden[key] ? "Show" : "Hide"} ${playlist.name} in Turntable only`);
+    hide.onclick = () => { if (playlistOrganization.hidden[key]) delete playlistOrganization.hidden[key]; else playlistOrganization.hidden[key] = true; savePlaylistOrganization(); renderPlaylists(); };
+    actions.append(pin, hide);
+    card.append(actions);
+    grid.append(card);
   });
 }
-
 async function loadPlaylists(force = false) {
   if (playlistsLoading || (playlistsLoaded && !force)) return;
   playlistsLoading = true;
@@ -1407,7 +1478,8 @@ async function loadPlaylists(force = false) {
   }
   try {
     const result = await api("/api/playlists");
-    renderPlaylists(result.items || []);
+    playlistItems = result.items || [];
+    renderPlaylists();
     playlistsLoaded = true;
     setMessage();
   } catch (error) {
@@ -2416,6 +2488,9 @@ $("open-link-settings").onclick = async () => {
 };
 $("recheck-link-settings").onclick = () => { void recheckAppLinkSettings(); };
 $("continue-link-setup").onclick = () => { localStorage.setItem(APP_LINK_GUIDE_COMPLETED_KEY, "1"); startTurntableExperience(); };
+$("playlist-sort").onchange = () => { playlistOrganization.sort = $("playlist-sort").value; savePlaylistOrganization(); renderPlaylists(); };
+$("playlist-hidden-toggle").onclick = () => { playlistOrganization.showHidden = !playlistOrganization.showHidden; renderPlaylists(); };
+$("playlist-organize-toggle").onclick = () => { playlistOrganization.organizing = !playlistOrganization.organizing; renderPlaylists(); };
 $("open-current-spotify").onclick = async () => {
   const url = $("open-current-spotify").dataset.spotifyUrl;
   if (!url) return;
