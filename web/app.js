@@ -34,16 +34,18 @@ function readPlaylistOrganization() {
     return {
       pinned: saved?.pinned && typeof saved.pinned === "object" ? saved.pinned : {},
       hidden: saved?.hidden && typeof saved.hidden === "object" ? saved.hidden : {},
-      sort: ["pinned", "name", "tracks"].includes(saved?.sort) ? saved.sort : "pinned",
+      sort: ["pinned", "name", "tracks", "manual"].includes(saved?.sort) ? saved.sort : "pinned",
+      order: Array.isArray(saved?.order) ? saved.order.filter((key) => typeof key === "string") : [],
       showHidden: false,
       organizing: false
     };
-  } catch { return { pinned: {}, hidden: {}, sort: "pinned", showHidden: false, organizing: false }; }
+  } catch { return { pinned: {}, hidden: {}, sort: "pinned", order: [], showHidden: false, organizing: false }; }
 }
 let playlistOrganization = readPlaylistOrganization();
+let playlistDrag = null;
 function savePlaylistOrganization() {
-  const { pinned, hidden, sort } = playlistOrganization;
-  localStorage.setItem(PLAYLIST_ORGANIZATION_KEY, JSON.stringify({ pinned, hidden, sort }));
+  const { pinned, hidden, sort, order } = playlistOrganization;
+  localStorage.setItem(PLAYLIST_ORGANIZATION_KEY, JSON.stringify({ pinned, hidden, sort, order }));
 }
 let devicesLoaded = false;
 let devicesLoading = false;
@@ -1385,8 +1387,82 @@ function orderedPlaylists(playlists) {
       const trackDifference = Number(right.tracks || 0) - Number(left.tracks || 0);
       if (trackDifference) return trackDifference;
     }
+    if (playlistOrganization.sort === "manual") {
+      const order = playlistOrganization.order;
+      const leftIndex = order.indexOf(leftKey); const rightIndex = order.indexOf(rightKey);
+      if (leftIndex >= 0 || rightIndex >= 0) return (leftIndex < 0 ? Number.MAX_SAFE_INTEGER : leftIndex) - (rightIndex < 0 ? Number.MAX_SAFE_INTEGER : rightIndex);
+    }
     return String(left.name || "").localeCompare(String(right.name || ""), undefined, { sensitivity: "base" });
   });
+}
+function animatePlaylistPositions(before) {
+  requestAnimationFrame(() => {
+    document.querySelectorAll("#playlist-grid .playlist-card").forEach((card) => {
+      if (card.classList.contains("playlist-dragging")) return;
+      const previous = before.get(card);
+      if (!previous) return;
+      const current = card.getBoundingClientRect();
+      const deltaY = previous.top - current.top;
+      if (Math.abs(deltaY) > 1) card.animate([{ transform: `translateY(${deltaY}px)` }, { transform: "translateY(0)" }], { duration: 180, easing: "cubic-bezier(.2,.8,.2,1)" });
+    });
+  });
+}
+function movePlaylistDropIndicator(clientY) {
+  if (!playlistDrag) return;
+  const grid = $("playlist-grid");
+  const before = new Map([...grid.querySelectorAll(".playlist-card")].map((card) => [card, card.getBoundingClientRect()]));
+  const cards = [...grid.querySelectorAll(".playlist-card")].filter((card) => card !== playlistDrag.card);
+  const target = cards.find((card) => clientY < card.getBoundingClientRect().top + card.getBoundingClientRect().height / 2);
+  if (target) grid.insertBefore(playlistDrag.indicator, target);
+  else grid.append(playlistDrag.indicator);
+  animatePlaylistPositions(before);
+}
+function finishPlaylistDrag(event) {
+  if (!playlistDrag || event.pointerId !== playlistDrag.pointerId) return;
+  const drag = playlistDrag;
+  window.removeEventListener("pointermove", movePlaylistDrag);
+  window.removeEventListener("pointerup", finishPlaylistDrag);
+  window.removeEventListener("pointercancel", finishPlaylistDrag);
+  drag.card.classList.remove("playlist-dragging");
+  drag.card.style.removeProperty("--playlist-drag-y");
+  drag.card.releasePointerCapture?.(drag.pointerId);
+  if (drag.moved) {
+    const grid = $("playlist-grid");
+    const children = [...grid.children];
+    const indicatorIndex = children.indexOf(drag.indicator);
+    const beforeCard = children.slice(indicatorIndex + 1).find((card) => card.classList?.contains("playlist-card") && card !== drag.card);
+    const visibleKeys = [...grid.querySelectorAll(".playlist-card")].filter((card) => card !== drag.card).map((card) => card.dataset.playlistKey);
+    const insertionIndex = beforeCard ? visibleKeys.indexOf(beforeCard.dataset.playlistKey) : visibleKeys.length;
+    visibleKeys.splice(Math.max(0, insertionIndex), 0, drag.key);
+    const remaining = playlistItems.map(playlistKey).filter((key) => !visibleKeys.includes(key));
+    playlistOrganization.order = [...visibleKeys, ...remaining];
+    playlistOrganization.sort = "manual";
+    savePlaylistOrganization();
+  }
+  drag.indicator.remove();
+  playlistDrag = null;
+  renderPlaylists();
+}
+function movePlaylistDrag(event) {
+  if (!playlistDrag || event.pointerId !== playlistDrag.pointerId) return;
+  const drag = playlistDrag;
+  const deltaY = event.clientY - drag.startY;
+  if (!drag.moved && Math.abs(deltaY) < 5) return;
+  drag.moved = true;
+  drag.card.dataset.dragSuppress = "true";
+  drag.card.classList.add("playlist-dragging");
+  drag.card.style.setProperty("--playlist-drag-y", `${deltaY}px`);
+  movePlaylistDropIndicator(event.clientY);
+  event.preventDefault();
+}
+function startPlaylistDrag(event, playlist, card) {
+  if (!playlistOrganization.organizing || event.button > 0 || playlistDrag) return;
+  playlistDrag = { card, key: playlistKey(playlist), pointerId: event.pointerId, startY: event.clientY, moved: false, indicator: document.createElement("div") };
+  playlistDrag.indicator.className = "playlist-drop-indicator";
+  card.setPointerCapture?.(event.pointerId);
+  window.addEventListener("pointermove", movePlaylistDrag, { passive: false });
+  window.addEventListener("pointerup", finishPlaylistDrag);
+  window.addEventListener("pointercancel", finishPlaylistDrag);
 }
 function syncPlaylistOrganizationControls() {
   const sort = $("playlist-sort");
@@ -1422,6 +1498,7 @@ function renderPlaylists(playlists = playlistItems) {
     const key = playlistKey(playlist);
     const card = document.createElement("article");
     card.className = `playlist-card${playlistOrganization.pinned[key] ? " pinned" : ""}${playlistOrganization.hidden[key] ? " hidden-playlist" : ""}`;
+    card.dataset.playlistKey = key;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "playlist-play";
@@ -1445,7 +1522,8 @@ function renderPlaylists(playlists = playlistItems) {
     const detail = document.createElement("small");
     detail.textContent = Number.isFinite(playlist.tracks) ? `${playlist.tracks} tracks` : playlist.owner;
     button.append(cover, name, detail);
-    button.onclick = () => playPlaylist(playlist, button);
+    button.onpointerdown = (event) => startPlaylistDrag(event, playlist, card);
+    button.onclick = () => { if (card.dataset.dragSuppress) { delete card.dataset.dragSuppress; return; } playPlaylist(playlist, button); };
     card.append(button);
     const actions = document.createElement("div");
     actions.className = "playlist-organize-actions";
